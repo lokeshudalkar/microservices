@@ -2,12 +2,15 @@ package com.jobportal.jobservice.JobPostController;
 
 import com.jobportal.jobservice.Entity.JobPost;
 import com.jobportal.jobservice.JobPostDTOs.JobPostRequest;
+import com.jobportal.jobservice.JobPostDTOs.User;
 import com.jobportal.jobservice.JobPostRepository.JobPostRepository;
 import com.jobportal.jobservice.JobServices.JobService;
 import com.jobportal.jobservice.feignClient.UserClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,11 +27,14 @@ public class JobPostController {
 
     @PostMapping("/post")
     public ResponseEntity<?> createJob(@RequestBody JobPostRequest jobPostRequest){
-        Long recruiterIdFromUserService = userClient.getRecruiterId(jobPostRequest.getRecruiterId());
-        if (recruiterIdFromUserService == 0L) {
-            return ResponseEntity.badRequest().body("User is not a recruiter or does not exist");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String recruiterEmail = authentication.getName();
+
+        User recruiter = userClient.getUserByEmail(recruiterEmail);
+        if (recruiter == null || !"RECRUITER".equals(recruiter.getRole())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not a recruiter or does not exist.");
         }
-        JobPost jobPost = jobService.createJobPost(jobPostRequest , recruiterIdFromUserService);
+        JobPost jobPost = jobService.createJobPost(jobPostRequest , recruiter.getId());
         return new ResponseEntity<>(jobPost, HttpStatus.CREATED);
     }
 }

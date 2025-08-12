@@ -17,6 +17,7 @@ public class JobService {
 
     private final JobPostRepository jobPostRepository;
 
+    @Transactional
     public JobPost createJobPost(JobPostRequest jobPostRequest , Long recruiterId){
         JobPost jobPost = JobPost.builder()
                 .title(jobPostRequest.getTitle())

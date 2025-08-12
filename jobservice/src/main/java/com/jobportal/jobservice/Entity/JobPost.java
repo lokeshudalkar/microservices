@@ -28,7 +28,5 @@ public class JobPost {
     private LocalDateTime time;
     private Long recruiterId; //it will come from user_db;
 
-//    @OneToMany(mappedBy = "jobPost", cascade = CascadeType.ALL)
-//    private List<JobApplication> applications;
 
 }
