@@ -32,18 +32,19 @@ public class JobService {
         return jobPostRepository.save(jobPost);
     }
 
-    public List<JobPost> getAllJobPost(){
-        return jobPostRepository.findAll();
+    public List<JobPost> getAllJobPost(Long recruiterId){
+        return jobPostRepository.findByRecruiterId(recruiterId);
     }
 
     @Transactional
     public JobPost updateJob(Long jobId , JobPostRequest jobPostRequest , Long recruiterId){
         JobPost jobPost = jobPostRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
-
-        if(jobPost.getRecruiterId().equals(recruiterId)){
-            throw new RuntimeException("not allowed to update this job");
+        if (!jobPost.getRecruiterId().equals(recruiterId)) {
+            // If the ID from the token does not match the ID on the job post, deny access.
+            throw new RuntimeException("Not authorized to update this job post.");
         }
+
         jobPost.setTitle(jobPostRequest.getTitle());
         jobPost.setCompanyName(jobPostRequest.getCompanyName());
         jobPost.setDescription(jobPostRequest.getDescription());
@@ -55,7 +56,7 @@ public class JobService {
     }
 
     @Transactional
-    public void deleteJob(Long jobId, Long recruiterId) {
+    public boolean deleteJob(Long jobId, Long recruiterId) {
         JobPost jobPost = jobPostRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
 
@@ -64,6 +65,7 @@ public class JobService {
         }
 
         jobPostRepository.delete(jobPost);
+        return true;
     }
 
 

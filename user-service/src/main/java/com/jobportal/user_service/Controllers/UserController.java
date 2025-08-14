@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -31,12 +30,9 @@ public class UserController {
         return 0L;
     }
 
-
     @GetMapping("/by-email/{email}")
     public User getUserByEmail(@PathVariable String email) {
         return userRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("User not found"));
     }
-
-
 }

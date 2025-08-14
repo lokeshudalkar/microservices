@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="discovery-server" />
+        <module name="user-service" />
+        <module name="jobservice" />
+        <module name="common-security-lib" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="jobportal-microservices" target="21" />
+      <module name="jobservice (1)" target="1.5" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="common-security-lib" options="-parameters" />
+      <module name="discovery-server" options="-parameters" />
+      <module name="jobportal-microservices" options="-parameters" />
+      <module name="jobservice" options="-parameters" />
+      <module name="jobservice (1)" options="" />
+      <module name="user-service" options="-parameters" />
+    </option>
+  </component>
+</project>
