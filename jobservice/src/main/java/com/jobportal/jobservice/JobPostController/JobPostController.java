@@ -13,10 +13,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
-@RequestMapping("/job-post")
+@RequestMapping("/jobs")
 @RequiredArgsConstructor
 public class JobPostController {
 
@@ -25,22 +24,31 @@ public class JobPostController {
     private final UserClient userClient;
 
     @PostMapping("/post")
-    public ResponseEntity<?> createJob(@RequestBody JobPostRequest jobPostRequest){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String recruiterEmail = authentication.getName();
+    public ResponseEntity<?> createJob(
+            @RequestHeader("X-User-Email") String email,
+            @RequestHeader("X-User-Role") String role,
+            @RequestBody JobPostRequest jobPostRequest) {
 
-        User recruiter = userClient.getUserByEmail(recruiterEmail);
-        if (recruiter == null || !"RECRUITER".equals(recruiter.getRole())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not a recruiter or does not exist.");
+        if (!"RECRUITER".equals(role)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not a recruiter.");
         }
-        JobPost jobPost = jobService.createJobPost(jobPostRequest , recruiter.getId());
+
+        User recruiter = userClient.getUserByEmail(email);
+        if (recruiter == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Recruiter not found.");
+        }
+
+        JobPost jobPost = jobService.createJobPost(jobPostRequest, recruiter.getId());
         return new ResponseEntity<>(jobPost, HttpStatus.CREATED);
     }
 
+
     @PutMapping("/updatejob/{jobId}")
-    public ResponseEntity<?> updateJob(@RequestBody JobPostRequest jobPostRequest , @PathVariable Long jobId){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String recruiterEmail = authentication.getName();
+    public ResponseEntity<?> updateJob(@RequestBody JobPostRequest jobPostRequest ,
+                                       @RequestHeader("X-User-Email") String email ,
+                                        @PathVariable Long jobId){
+
+        String recruiterEmail = email;
 
         User recruiter = userClient.getUserByEmail(recruiterEmail);
         if (recruiter == null || !"RECRUITER".equals(recruiter.getRole())) {
@@ -52,9 +60,10 @@ public class JobPostController {
     }
 
     @DeleteMapping("/delete-job/{jobId}")
-    public ResponseEntity<?> deleteJob(@PathVariable Long jobId){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String recruiterEmail = authentication.getName();
+    public ResponseEntity<?> deleteJob(@RequestHeader("X-User-Email") String email ,
+                                        @PathVariable Long jobId){
+
+        String recruiterEmail = email;
 
         User recruiter = userClient.getUserByEmail(recruiterEmail);
         if (recruiter == null || !"RECRUITER".equals(recruiter.getRole())) {
@@ -67,9 +76,9 @@ public class JobPostController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllJobPostedByRecruiter(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String recruiterEmail = authentication.getName();
+    public ResponseEntity<?> getAllJobPostedByRecruiter(@RequestHeader("X-User-Email") String email ){
+
+        String recruiterEmail = email;
 
         User recruiter = userClient.getUserByEmail(recruiterEmail);
         if (recruiter == null || !"RECRUITER".equals(recruiter.getRole())) {

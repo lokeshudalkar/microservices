@@ -1,7 +1,6 @@
 package com.jobportal.user_service.Controllers;
 
-
-
+import com.jobportal.user_service.Repositories.UserRepository;
 import com.jobportal.user_service.UserDTOs.AuthRequest;
 import com.jobportal.user_service.UserDTOs.UserRequest;
 import com.jobportal.user_service.Entity.User;
@@ -21,17 +20,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
+import java.util.Map;
 
 
 @Slf4j
 @RestController
-@RequestMapping("/public")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class RegisterLoginController {
 
     private final UserService userService;
 
+    private final UserRepository userRepository;
 
     private final JwtUtil jwtUtil;
 
@@ -46,19 +46,26 @@ public class RegisterLoginController {
         return new ResponseEntity<>(userService.registerUser(userRequest), HttpStatus.CREATED);
     }
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@Valid @RequestBody AuthRequest authRequest){
+    public ResponseEntity<Map<String , String>> loginUser(@Valid @RequestBody AuthRequest authRequest){
+
         try {
             Authentication authenticate = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
+                    new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword())
+            );
+
             if (authenticate.isAuthenticated()) {
-                String jwt = jwtUtil.generateToken(authRequest.getEmail());
-                return ResponseEntity.ok(Collections.singletonMap("token", jwt));
+                User user = userRepository.findByEmail(authRequest.getEmail())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+                String jwt = jwtUtil.generateToken(authRequest.getEmail() , String.valueOf(user.getRole()));
+
+                return ResponseEntity.ok(Map.of("token", jwt));
             } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authentication failed"));
             }
         } catch (Exception e) {
             log.error("Exception occurred while createAuthenticationToken ", e);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect username or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Incorrect username or password"));
         }
     }
 }

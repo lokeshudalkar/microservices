@@ -2,7 +2,6 @@ package com.jobportal.user_service.config;
 
 
 import com.jobportal.user_service.Services.UserDetailServiceImpl;
-import com.jobportal.user_service.filter.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +14,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -25,17 +23,14 @@ public class SecurityConfig  {
     private  final UserDetailServiceImpl userDetailService;
 
 
-    private final JwtFilter jwtFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(request -> request.
                         requestMatchers("/user/**").authenticated()
-                        .requestMatchers("/SeekerProfile/**").hasRole("SEEKER")
-                        .requestMatchers("/recruiterProfile/**").hasRole("RECRUITER")
+                        .requestMatchers("/auth/register", "/auth/login").permitAll()
                         .anyRequest().permitAll())
                         .csrf(AbstractHttpConfigurer::disable)
-                        .addFilterBefore(jwtFilter , UsernamePasswordAuthenticationFilter.class)
                         .build();
     }
 
