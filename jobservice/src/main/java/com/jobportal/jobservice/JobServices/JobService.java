@@ -68,5 +68,8 @@ public class JobService {
         return true;
     }
 
+    public List<JobPost> getAlljobs(){
+        return jobPostRepository.findAll();
+    }
 
 }

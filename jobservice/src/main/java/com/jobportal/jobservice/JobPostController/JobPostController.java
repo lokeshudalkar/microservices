@@ -74,7 +74,7 @@ public class JobPostController {
         return ResponseEntity.badRequest().body("your not allowed to delete this job");
     }
 
-    @GetMapping
+    @GetMapping("/my-jobs")
     public ResponseEntity<?> getAllJobPostedByRecruiter(@RequestHeader("X-User-Email") String email ){
 
         String recruiterEmail = email;
