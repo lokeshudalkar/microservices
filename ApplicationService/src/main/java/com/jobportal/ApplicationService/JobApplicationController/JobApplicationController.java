@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/job-applications")
-//@RequiredArgsConstructor
+@RequiredArgsConstructor
 public class JobApplicationController {
 
 
@@ -22,13 +22,7 @@ public class JobApplicationController {
     private final JobApplicationRepository jobApplicationRepository;
 
     private final UserClient userClient;
-    public JobApplicationController(JobApplicationService jobApplicationService,
-                                    JobApplicationRepository jobApplicationRepository,
-                                    UserClient userClient) {
-        this.jobApplicationService = jobApplicationService;
-        this.jobApplicationRepository = jobApplicationRepository;
-        this.userClient = userClient;
-    }
+
 
     @PostMapping("/apply-to/{jobId}")
     public ResponseEntity<?> apply(@RequestHeader("X-User-Email") String email,
