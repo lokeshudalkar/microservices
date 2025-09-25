@@ -13,7 +13,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class JobService {
+public class JobService  {
 
     private final JobPostRepository jobPostRepository;
 
@@ -61,7 +61,7 @@ public class JobService {
                 .orElseThrow(() -> new RuntimeException("Job not found"));
 
         if (!jobPost.getRecruiterId().equals(recruiterId)) {
-            throw new RuntimeException("Not authorized to delete this job");
+            throw new RuntimeException("Not authorized to delete this job!");
         }
 
         jobPostRepository.delete(jobPost);

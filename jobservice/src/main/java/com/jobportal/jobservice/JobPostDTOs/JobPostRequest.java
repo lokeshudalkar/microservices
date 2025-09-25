@@ -2,6 +2,7 @@ package com.jobportal.jobservice.JobPostDTOs;
 
 import lombok.*;
 
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

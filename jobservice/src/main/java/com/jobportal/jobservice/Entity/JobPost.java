@@ -20,12 +20,18 @@ public class JobPost {
     private Long id;
 
     private String title;
+
     private String companyName;
+
     private String description;
+
     private String location;
+
     private double salary;
+
     private LocalDateTime time;
-    private Long recruiterId; //it will come from user_db;
+
+    private Long recruiterId; // it will come from user-service
 
 
 }

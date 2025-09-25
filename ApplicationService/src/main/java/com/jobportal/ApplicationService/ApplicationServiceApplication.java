@@ -1,19 +1,19 @@
-package com.jobportal.jobservice;
+package com.jobportal.ApplicationService;
 
-import lombok.extern.slf4j.Slf4j;
+import jdk.jfr.Enabled;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
-@SpringBootApplication
+
 @EnableFeignClients
 @EnableDiscoveryClient
-@Slf4j
-public class JobserviceApplication {
+@SpringBootApplication
+public class ApplicationServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(JobserviceApplication.class, args);
-		System.out.println("Job-Service has Started");
+		SpringApplication.run(ApplicationServiceApplication.class, args);
+		System.out.println("Application-service has started");
 	}
 }

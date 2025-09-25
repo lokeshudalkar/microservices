@@ -12,15 +12,26 @@
         <module name="user-service" />
         <module name="jobservice" />
       </profile>
+      <profile name="Annotation profile for ApplicationService" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
+        </processorPath>
+        <module name="ApplicationService" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="common-security-lib" target="21" />
       <module name="jobportal-microservices" target="21" />
+      <module name="jobportal_microservices" target="1.5" />
       <module name="jobservice (1)" target="1.5" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="ApplicationService" options="-parameters" />
       <module name="api-gateway" options="-parameters" />
       <module name="common-security-lib" options="-parameters" />
       <module name="discovery-server" options="-parameters" />

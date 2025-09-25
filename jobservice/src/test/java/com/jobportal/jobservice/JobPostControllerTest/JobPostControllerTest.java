@@ -4,6 +4,7 @@ package com.jobportal.jobservice.JobPostControllerTest;
 
 import com.jobportal.jobservice.Entity.JobPost;
 import com.jobportal.jobservice.JobPostController.JobPostController;
+import com.jobportal.jobservice.JobPostController.PublicController;
 import com.jobportal.jobservice.JobPostDTOs.JobPostRequest;
 import com.jobportal.jobservice.JobPostDTOs.User;
 import com.jobportal.jobservice.JobPostRepository.JobPostRepository;
@@ -15,11 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.*;
 import java.time.LocalDateTime;
@@ -41,6 +39,9 @@ class JobPostControllerTest {
 
     @InjectMocks
     private JobPostController jobPostController;
+
+    @InjectMocks
+    private PublicController publicController;
 
     @Test
     void CreatejobTest(){
@@ -104,5 +105,31 @@ class JobPostControllerTest {
 
     }
 
+//    @Test
+//    void deleteJobWhenRIdIsNull() {
+//        JobPost jobToBEDeleted = new JobPost(1L, "Senior Java Developer", "Nova-tech", "A role...", "Remote", 150000.0,
+//                LocalDateTime.now(), 101L);
+//        when(jobPostRepository.findById(1L)).thenReturn(Optional.of(jobToBEDeleted));
+//        assertThatThrownBy(() -> jobService.deleteJob(1L ,  999L))
+//                .isInstanceOf(Exception.class)
+//                .hasMessage("Not authorized to delete this job");
+//        verify(jobPostRepository, never()).delete(any());
+//    }
 
+    @Test
+    void getJobsByKeyword(){
+
+        JobPostRequest jobRequest = new JobPostRequest("Senior Java Developer", "Innovatech", "A role...", "Remote", 150000.0);
+        JobPost expectedJob = new JobPost(1L, "Senior Java Developer", "Nova-tech", "A role...", "Remote", 150000.0 ,LocalDateTime.now()
+                , 101L);
+
+        JobPost expectedJob1 = new JobPost(2L, "Senior python Developer", "Nova-tech", "A role...", "Remote", 150000.0,LocalDateTime.now()
+               , 101L);
+        jobPostRepository.save(expectedJob);
+        jobPostRepository.save(expectedJob1);
+        ResponseEntity<?> responseEntity = publicController.searchJobsByKeyword("java");
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody()).isEqualTo(expectedJob1);
+
+    }
 }

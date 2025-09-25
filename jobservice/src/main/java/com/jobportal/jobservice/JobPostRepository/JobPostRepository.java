@@ -8,4 +8,7 @@ import java.util.List;
 
 public interface JobPostRepository extends JpaRepository<JobPost, Long> {
     List<JobPost> findByRecruiterId(Long recruiterId);
+    List<JobPost> findByTitleContainingOrDescriptionContainingOrLocationContainingAllIgnoreCase(
+        String title, String description, String location
+    );
 }
