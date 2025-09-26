@@ -1,8 +1,8 @@
 package com.jobportal.ApplicationService.JobApplicationRepository;
 
 
-import com.jobportal.ApplicationService.Entity.JobApplication;
 import org.springframework.data.jpa.repository.JpaRepository;
+import com.jobportal.ApplicationService.Entity.JobApplication;
 
 import java.util.List;
 

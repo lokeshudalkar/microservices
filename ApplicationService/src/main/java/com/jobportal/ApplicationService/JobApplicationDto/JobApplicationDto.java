@@ -12,7 +12,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class JobApplicationDto{
-
     private String resumeUrl;
-
 }

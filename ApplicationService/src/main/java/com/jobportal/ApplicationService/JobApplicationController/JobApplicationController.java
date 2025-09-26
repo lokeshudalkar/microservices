@@ -5,8 +5,9 @@ import com.jobportal.ApplicationService.FeignClient.UserClient;
 import com.jobportal.ApplicationService.JobApplicationDto.JobApplicationDto;
 import com.jobportal.ApplicationService.JobApplicationRepository.JobApplicationRepository;
 import com.jobportal.ApplicationService.JobApplicationService.JobApplicationService;
-import lombok.RequiredArgsConstructor;
 
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,11 +18,11 @@ import org.springframework.web.bind.annotation.*;
 public class JobApplicationController {
 
 
-    private final   JobApplicationService jobApplicationService;
+    private   final JobApplicationService jobApplicationService;
 
-    private final JobApplicationRepository jobApplicationRepository;
+    private  final JobApplicationRepository jobApplicationRepository;
 
-    private final UserClient userClient;
+    private  final UserClient userClient;
 
 
     @PostMapping("/apply-to/{jobId}")
@@ -37,6 +38,6 @@ public class JobApplicationController {
         jobApplicationService.applyToJob(userClient.getSeekerId(email),
                 jobApplicationDto , jobId);
 
-        return new ResponseEntity<>(null , HttpStatus.CREATED);
+        return new ResponseEntity<>("Application Submitted Successfully" , HttpStatus.CREATED);
     }
 }
