@@ -1,6 +1,7 @@
 package com.jobportal.ApplicationService.JobApplicationController;
 
 
+import com.jobportal.ApplicationService.FeignClient.JobPostClient;
 import com.jobportal.ApplicationService.FeignClient.UserClient;
 import com.jobportal.ApplicationService.JobApplicationDto.JobApplicationDto;
 import com.jobportal.ApplicationService.JobApplicationRepository.JobApplicationRepository;
@@ -24,6 +25,8 @@ public class JobApplicationController {
 
     private  final UserClient userClient;
 
+    private final JobPostClient jobPostClient;
+
 
     @PostMapping("/apply-to/{jobId}")
     public ResponseEntity<?> apply(@RequestHeader("X-User-Email") String email,
@@ -34,7 +37,11 @@ public class JobApplicationController {
         if(!"SEEKER".equals(role)){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not Seeker");
         }
-
+        try {
+            jobPostClient.getJobId(jobId);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Job With Id " + jobId + " Not Found");
+        }
         jobApplicationService.applyToJob(userClient.getSeekerId(email),
                 jobApplicationDto , jobId);
 

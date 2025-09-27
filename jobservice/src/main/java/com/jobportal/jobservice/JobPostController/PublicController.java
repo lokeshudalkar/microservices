@@ -38,7 +38,7 @@ public class PublicController {
     }
 
     @GetMapping("/{job-id}/job-id")
-    public Long getJobId(@PathVariable Long jobId){
+    public Long getJobId(@PathVariable("job-id") Long jobId){
         JobPost jobPost = jobPostRepository.findById(jobId).orElseThrow(
                 () -> new RuntimeException("Job With this id is not found")
         );

@@ -8,6 +8,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface JobPostClient {
 
     @GetMapping("/public/{job-id}/job-id")
-    Long getJobPostId(@PathVariable("job-id") Long id);
+    Long getJobId(@PathVariable("job-id") Long id);
 
 }
