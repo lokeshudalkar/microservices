@@ -47,6 +47,15 @@ spring:
               - name: AuthenticationFilter
 
 
+        - id: job-application-public
+          uri: lb://application-service
+          predicates:
+              - Path=/api/all/**
+          filters:
+              - StripPrefix=1
+
+
+
       discovery:
         locator:
           enabled: true

@@ -72,4 +72,13 @@ public class JobService  {
         return jobPostRepository.findAll();
     }
 
+    @Transactional
+    public JobPost incrementApplicationCount(Long jobId) {
+        JobPost jobPost = jobPostRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Job not found for ID: " + jobId));
+
+        jobPost.setApplicationCount(jobPost.getApplicationCount() + 1);
+        return jobPostRepository.save(jobPost);
+    }
+
 }

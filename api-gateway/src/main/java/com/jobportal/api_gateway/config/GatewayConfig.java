@@ -58,6 +58,11 @@ public class GatewayConfig {
                         .filters(f -> f.stripPrefix(1).filter(authenticationFilter.apply(new Object())))
                         .uri("lb://application-service"))
 
+                .route("job-application-public", r -> r
+                        .path("/api/all/**")
+                        .filters(f -> f.stripPrefix(1))
+                        .uri("lb://application-service"))
+
 
                 .route("fallback", r -> r
                         .path("/**")

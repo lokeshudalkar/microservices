@@ -3,6 +3,7 @@ package com.jobportal.jobservice.JobPostController;
 
 import com.jobportal.jobservice.Entity.JobPost;
 import com.jobportal.jobservice.JobPostRepository.JobPostRepository;
+import com.jobportal.jobservice.JobServices.JobService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
@@ -16,6 +17,7 @@ import java.util.List;
 public class PublicController {
 
     private  final JobPostRepository jobPostRepository;
+    private final JobService jobService;
 
     @GetMapping
     public ResponseEntity<?> getAllJobPost(){
@@ -44,6 +46,12 @@ public class PublicController {
         );
 
         return jobPost.getId();
+    }
+
+    @PatchMapping("/internal/job/{jobId}/increment-count")
+    public ResponseEntity<Void> incrementJobCount(@PathVariable Long jobId) {
+        jobService.incrementApplicationCount(jobId);
+        return ResponseEntity.ok().build();
     }
 
 }

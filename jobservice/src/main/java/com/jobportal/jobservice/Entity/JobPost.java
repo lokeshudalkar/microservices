@@ -33,5 +33,7 @@ public class JobPost {
 
     private Long recruiterId; // it will come from user-service
 
+    private int applicationCount = 0;
+
 
 }
