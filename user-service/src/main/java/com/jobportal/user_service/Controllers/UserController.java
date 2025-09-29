@@ -30,11 +30,19 @@ public class UserController {
         return 0L;
     }
 
-    @GetMapping("/by-email/{email}")
-    public Long getUserIdByEmail(@PathVariable String email) {
+    @GetMapping("/by_email/{email}") // <-- Revert: Only returns the Long ID (Used by Application Service)
+    public Long getSeekerId(@PathVariable String email) {
        User user = userRepository.findByEmail(email).orElseThrow(
                () -> new RuntimeException("User not found with this email")
        );
        return user.getId();
+    }
+
+    @GetMapping("/by-email/{email}")
+    public User getUserIdByEmail(@PathVariable String email) {
+       User user = userRepository.findByEmail(email).orElseThrow(
+               () -> new RuntimeException("User not found with this email")
+       );
+       return user;
     }
 }
