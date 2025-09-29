@@ -45,6 +45,8 @@ public class JobApplicationController {
         jobApplicationService.applyToJob(userClient.getSeekerId(email),
                 jobApplicationDto , jobId);
 
+        jobPostClient.incrementApplicationCount(jobId);
+
         return new ResponseEntity<>("Application Submitted Successfully" , HttpStatus.CREATED);
     }
 }

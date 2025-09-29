@@ -12,5 +12,5 @@ public interface UserClient {
     Long getRecruiterId(@PathVariable("recruiter-id") Long id);
 
     @GetMapping("/users/by-email/{email}") // Add this new method
-    User getUserByEmail(@PathVariable("email") String email);
+    User getUserIdByEmail(@PathVariable("email") String email);
 }

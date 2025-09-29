@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class JobApplicationService {
 
     private final JobApplicationRepository jobApplicationRepository;
-    private final JobPostClient jobPostClient;
+//    private final JobPostClient jobPostClient;
 
     @Transactional
     public void applyToJob(Long seekerId , JobApplicationDto jobApplicationDto , Long jobId ){
@@ -41,11 +41,6 @@ public class JobApplicationService {
         .seekerId(seekerId)
         .build();
        jobApplicationRepository.save(jobApplication);
-       try {
-            jobPostClient.incrementApplicationCount(jobId);
-        } catch (Exception e) {
-            // Log failure to increment count; the application itself should still be considered saved.
-            System.err.println("Failed to increment application count in Job Service for Job ID: " + jobId + " Error: " + e.getMessage());
-        }
+
     }
 }

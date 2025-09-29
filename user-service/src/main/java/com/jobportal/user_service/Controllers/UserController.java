@@ -30,6 +30,8 @@ public class UserController {
         return 0L;
     }
 
+    // This Method is for application Service
+
     @GetMapping("/by_email/{email}") // <-- Revert: Only returns the Long ID (Used by Application Service)
     public Long getSeekerId(@PathVariable String email) {
        User user = userRepository.findByEmail(email).orElseThrow(
@@ -38,6 +40,7 @@ public class UserController {
        return user.getId();
     }
 
+    //This is for Job Service
     @GetMapping("/by-email/{email}")
     public User getUserIdByEmail(@PathVariable String email) {
        User user = userRepository.findByEmail(email).orElseThrow(

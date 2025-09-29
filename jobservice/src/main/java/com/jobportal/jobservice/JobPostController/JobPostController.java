@@ -32,7 +32,7 @@ public class JobPostController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not a recruiter.");
         }
 
-        User recruiter = userClient.getUserByEmail(email);
+        User recruiter = userClient.getUserIdByEmail(email);
         if (recruiter == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Recruiter not found.");
         }
@@ -49,7 +49,7 @@ public class JobPostController {
 
         String recruiterEmail = email;
 
-        User recruiter = userClient.getUserByEmail(recruiterEmail);
+        User recruiter = userClient.getUserIdByEmail(recruiterEmail);
         if (recruiter == null || !"RECRUITER".equals(recruiter.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not a recruiter or does not exist.");
         }
@@ -64,7 +64,7 @@ public class JobPostController {
 
         String recruiterEmail = email;
 
-        User recruiter = userClient.getUserByEmail(recruiterEmail);
+        User recruiter = userClient.getUserIdByEmail(recruiterEmail);
         if (recruiter == null || !"RECRUITER".equals(recruiter.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not a recruiter or does not exist.");
         }
@@ -79,7 +79,7 @@ public class JobPostController {
 
         String recruiterEmail = email;
 
-        User recruiter = userClient.getUserByEmail(recruiterEmail);
+        User recruiter = userClient.getUserIdByEmail(recruiterEmail);
         if (recruiter == null || !"RECRUITER".equals(recruiter.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not a recruiter or does not exist.");
         }

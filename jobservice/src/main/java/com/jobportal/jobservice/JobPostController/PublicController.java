@@ -48,10 +48,9 @@ public class PublicController {
         return jobPost.getId();
     }
 
-    @PatchMapping("/internal/job/{jobId}/increment-count")
-    public ResponseEntity<Void> incrementJobCount(@PathVariable Long jobId) {
+    @PutMapping("/internal/job/{jobId}/increment-count")
+    public int incrementJobCount(@PathVariable Long jobId) {
         jobService.incrementApplicationCount(jobId);
-        return ResponseEntity.ok().build();
+        return 0;
     }
-
 }

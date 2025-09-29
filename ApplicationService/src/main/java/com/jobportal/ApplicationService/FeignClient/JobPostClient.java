@@ -2,7 +2,7 @@ package com.jobportal.ApplicationService.FeignClient;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(name = "jobservice")
@@ -12,6 +12,6 @@ public interface JobPostClient {
     Long getJobId(@PathVariable("job-id") Long id);
 
 
-    @PatchMapping("/jobs/internal/job/{jobId}/increment-count")
+    @PutMapping("/public/internal/job/{jobId}/increment-count")
     void incrementApplicationCount(@PathVariable("jobId") Long jobId);
 }
