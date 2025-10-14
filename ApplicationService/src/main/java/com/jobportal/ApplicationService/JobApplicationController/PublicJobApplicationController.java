@@ -3,11 +3,9 @@ package com.jobportal.ApplicationService.JobApplicationController;
 
 import com.jobportal.ApplicationService.Entity.JobApplication;
 import com.jobportal.ApplicationService.JobApplicationRepository.JobApplicationRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,5 +20,11 @@ public class PublicJobApplicationController {
     public  Long getAllJobsById(@PathVariable("jobId") Long jobId){
         List<JobApplication> byJobPostId = jobApplicationRepository.findByJobPostId(jobId);
         return (long) byJobPostId.size();
+    }
+
+
+    @DeleteMapping("/delete-applications/{jobId}")
+    public void deleteApplicationOfJobPost(@PathVariable("jobId") Long jobId){
+        jobApplicationRepository.deleteByJobPostId(jobId);
     }
 }

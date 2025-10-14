@@ -4,6 +4,7 @@ package com.jobportal.jobservice.JobServices;
 import com.jobportal.jobservice.Entity.JobPost;
 import com.jobportal.jobservice.JobPostDTOs.JobPostRequest;
 import com.jobportal.jobservice.JobPostRepository.JobPostRepository;
+import com.jobportal.jobservice.feignClient.JobApplicationClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import java.util.List;
 public class JobService  {
 
     private final JobPostRepository jobPostRepository;
+    private final JobApplicationClient jobApplicationClient;
 
     @Transactional
     public JobPost createJobPost(JobPostRequest jobPostRequest , Long recruiterId){
@@ -64,6 +66,7 @@ public class JobService  {
             throw new RuntimeException("Not authorized to delete this job!");
         }
 
+        jobApplicationClient.deleteJobApplicationOfJobPost(jobId);
         jobPostRepository.delete(jobPost);
         return true;
     }
