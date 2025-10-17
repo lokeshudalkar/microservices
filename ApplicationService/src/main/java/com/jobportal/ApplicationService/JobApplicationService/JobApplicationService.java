@@ -19,6 +19,7 @@ public class JobApplicationService {
     private final JobApplicationRepository jobApplicationRepository;
 //    private final JobPostClient jobPostClient;
 
+
     @Transactional
     public void applyToJob(Long seekerId , JobApplicationDto jobApplicationDto , Long jobId ){
 

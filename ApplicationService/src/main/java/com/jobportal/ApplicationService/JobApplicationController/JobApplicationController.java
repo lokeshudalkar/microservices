@@ -8,6 +8,7 @@ import com.jobportal.ApplicationService.JobApplicationRepository.JobApplicationR
 import com.jobportal.ApplicationService.JobApplicationService.JobApplicationService;
 
 
+import com.jobportal.ApplicationService.JobApplicationService.KafkaProducerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,14 +19,14 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class JobApplicationController {
 
-
     private   final JobApplicationService jobApplicationService;
-
-    private  final JobApplicationRepository jobApplicationRepository;
 
     private  final UserClient userClient;
 
+    private final KafkaProducerService kafkaProducerService;
+
     private final JobPostClient jobPostClient;
+
 
 
     @PostMapping("/apply-to/{jobId}")
@@ -45,8 +46,8 @@ public class JobApplicationController {
         jobApplicationService.applyToJob(userClient.getSeekerId(email),
                 jobApplicationDto , jobId);
 
-        jobPostClient.incrementApplicationCount(jobId);
-
+//        jobPostClient.incrementApplicationCount(jobId);
+        kafkaProducerService.sendApplicationSubmittedEvent(jobId);
         return new ResponseEntity<>("Application Submitted Successfully" , HttpStatus.CREATED);
     }
 }
