@@ -6,6 +6,7 @@ import com.jobportal.jobservice.JobPostDTOs.JobPostRequest;
 import com.jobportal.jobservice.JobPostRepository.JobPostRepository;
 import com.jobportal.jobservice.feignClient.JobApplicationClient;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +40,7 @@ public class JobService  {
     }
 
     @Transactional
+    @CacheEvict(value = {"allJobs" , "jobsearch"} , allEntries = true)
     public JobPost updateJob(Long jobId , JobPostRequest jobPostRequest , Long recruiterId){
         JobPost jobPost = jobPostRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
@@ -58,6 +60,7 @@ public class JobService  {
     }
 
     @Transactional
+    @CacheEvict(value = {"allJobs" , "jobsearch"} , allEntries = true)
     public boolean deleteJob(Long jobId, Long recruiterId) {
         JobPost jobPost = jobPostRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found"));

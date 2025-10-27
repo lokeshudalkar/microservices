@@ -40,12 +40,12 @@ public class GatewayConfig {
 
                 .route("user-protected", r -> r
                         .path("/api/users/**")
-                        .filters(f -> f.stripPrefix(1).filter(authenticationFilter.apply(new Object())))
+                        .filters(f -> f.stripPrefix(1).filter(authenticationFilter.apply(new AuthenticationFilter.Config())))
                         .uri("lb://user-service"))
 
                 .route("job-service-protected", r -> r
                         .path("/api/jobs/**")
-                        .filters(f -> f.stripPrefix(1).filter(authenticationFilter.apply(new Object())))
+                        .filters(f -> f.stripPrefix(1).filter(authenticationFilter.apply(new AuthenticationFilter.Config())))
                         .uri("lb://jobservice"))
 
                 .route("job-service-public", r -> r
@@ -55,7 +55,7 @@ public class GatewayConfig {
 
                 .route("job-application-protected", r -> r
                         .path("/api/job-applications/**")
-                        .filters(f -> f.stripPrefix(1).filter(authenticationFilter.apply(new Object())))
+                        .filters(f -> f.stripPrefix(1).filter(authenticationFilter.apply(new AuthenticationFilter.Config())))
                         .uri("lb://application-service"))
 
                 .route("job-application-public", r -> r

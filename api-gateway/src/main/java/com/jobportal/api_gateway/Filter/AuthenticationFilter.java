@@ -14,14 +14,18 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @Component
-@RequiredArgsConstructor
-public class AuthenticationFilter extends AbstractGatewayFilterFactory<Object> {
+//@RequiredArgsConstructor
+public  class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
 //AuthenticationFilter.Config
     private final JwtUtil jwtUtil;
 
+    public AuthenticationFilter(JwtUtil jwtUtil) {
+        super(Config.class);
+        this.jwtUtil = jwtUtil;
+    }
 
     @Override
-    public GatewayFilter apply(Object config) {
+    public GatewayFilter apply(Config config) {
         return ((exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
 
@@ -65,7 +69,8 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Object> {
         return response.setComplete();
     }
 
-//    public static class Config {
-//        // Configuration properties if needed
-//    }
+  
+    public static class Config {
+        // Configuration properties if needed
+    }
 }

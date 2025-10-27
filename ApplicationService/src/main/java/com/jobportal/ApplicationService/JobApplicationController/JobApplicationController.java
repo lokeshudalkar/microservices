@@ -19,14 +19,13 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class JobApplicationController {
 
-    private   final JobApplicationService jobApplicationService;
+    private  final JobApplicationService jobApplicationService;
 
     private  final UserClient userClient;
 
     private final KafkaProducerService kafkaProducerService;
 
     private final JobPostClient jobPostClient;
-
 
 
     @PostMapping("/apply-to/{jobId}")

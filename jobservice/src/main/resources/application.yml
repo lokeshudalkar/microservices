@@ -4,11 +4,13 @@ server:
 spring:
   application:
     name: jobservice
+
   datasource:
     url: jdbc:mysql://localhost:3306/jobpost_db
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -16,6 +18,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+
   kafka:
     bootstrap-servers: localhost:9092
     producer:
@@ -27,6 +30,14 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
+  data:
+    redis:
+      host: redis-15953.crce179.ap-south-1-1.ec2.redns.redis-cloud.com
+      port: 15953
+      username: default
+      password: E1xbwjGgfXfj0cGJJKvud8WImWEfPF6g
+      ssl:
+        enabled: true
 
 eureka:
   client:

@@ -5,6 +5,7 @@ import com.jobportal.jobservice.Entity.JobPost;
 import com.jobportal.jobservice.JobPostRepository.JobPostRepository;
 import com.jobportal.jobservice.JobServices.JobService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -20,11 +21,13 @@ public class PublicController {
     private final JobService jobService;
 
     @GetMapping
+    @Cacheable("allJobs")
     public ResponseEntity<?> getAllJobPost(){
         return ResponseEntity.ok(jobPostRepository.findAll());
     }
 
     @GetMapping("/search")
+    @Cacheable(value = "jobsearch" , key = "#keyword != null ? #keyword : 'all'")
     public ResponseEntity<?> searchJobsByKeyword(@RequestParam(required = false)  String keyword){
         List<JobPost> jobs;
         if(StringUtils.hasText(keyword)){
