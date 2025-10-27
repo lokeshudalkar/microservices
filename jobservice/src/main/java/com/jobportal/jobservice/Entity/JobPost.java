@@ -15,6 +15,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "job_post")
 public class JobPost {
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -22,13 +22,13 @@ public class PublicController {
 
     @GetMapping
     @Cacheable("allJobs")
-    public ResponseEntity<?> getAllJobPost(){
-        return ResponseEntity.ok(jobPostRepository.findAll());
+    public List<JobPost> getAllJobPost(){
+        return jobPostRepository.findAll();
     }
 
     @GetMapping("/search")
     @Cacheable(value = "jobsearch" , key = "#keyword != null ? #keyword : 'all'")
-    public ResponseEntity<?> searchJobsByKeyword(@RequestParam(required = false)  String keyword){
+    public List<JobPost> searchJobsByKeyword(@RequestParam(required = false)  String keyword){
         List<JobPost> jobs;
         if(StringUtils.hasText(keyword)){
             jobs = jobPostRepository
@@ -39,7 +39,7 @@ public class PublicController {
         else {
             jobs = jobPostRepository.findAll();
         }
-        return ResponseEntity.ok(jobs);
+        return jobs;
     }
 
     @GetMapping("/{job-id}/job-id")

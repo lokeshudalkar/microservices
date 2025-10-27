@@ -36,8 +36,6 @@ spring:
       port: 15953
       username: default
       password: E1xbwjGgfXfj0cGJJKvud8WImWEfPF6g
-      ssl:
-        enabled: true
 
 eureka:
   client:
