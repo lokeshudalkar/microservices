@@ -1,10 +1,13 @@
 package com.jobportal.ApplicationService.JobApplicationService;
 
 
+import com.jobportal.ApplicationService.Entity.Events;
 import com.jobportal.ApplicationService.Entity.JobApplication;
 import com.jobportal.ApplicationService.FeignClient.JobPostClient;
 import com.jobportal.ApplicationService.JobApplicationDto.JobApplicationDto;
 import com.jobportal.ApplicationService.JobApplicationRepository.JobApplicationRepository;
+import com.jobportal.ApplicationService.JobApplicationRepository.OutboxEventRepository;
+import com.jobportal.ApplicationService.enums.EventStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +20,8 @@ import java.time.LocalDateTime;
 public class JobApplicationService {
 
     private final JobApplicationRepository jobApplicationRepository;
-//    private final JobPostClient jobPostClient;
+    private final OutboxEventRepository outboxEventRepository;
+
 
 
     @Transactional
@@ -42,6 +46,15 @@ public class JobApplicationService {
         .seekerId(seekerId)
         .build();
        jobApplicationRepository.save(jobApplication);
+
+        Events events = Events.builder()
+                .topic("job-application-events")
+                .messageKey(String.valueOf(jobId))
+                .payload(String.valueOf(jobId))
+                .status(EventStatus.PENDING)
+                .createdAt(LocalDateTime.now())
+                .build();
+        outboxEventRepository.save(events);
 
     }
 }

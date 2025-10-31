@@ -46,7 +46,7 @@ public class JobApplicationController {
                 jobApplicationDto , jobId);
 
 //        jobPostClient.incrementApplicationCount(jobId);
-        kafkaProducerService.sendApplicationSubmittedEvent(jobId);
+//        kafkaProducerService.sendApplicationSubmittedEvent(jobId);
         return new ResponseEntity<>("Application Submitted Successfully" , HttpStatus.CREATED);
     }
 }
