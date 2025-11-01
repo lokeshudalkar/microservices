@@ -2,11 +2,13 @@ package com.jobportal.ApplicationService.JobApplicationService;
 
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ExecutionException;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class KafkaProducerService {
@@ -17,9 +19,9 @@ public class KafkaProducerService {
     public void sendApplicationSubmittedEvent(Long jobId) throws InterruptedException , ExecutionException{
         try {
             kafkaTemplate.send(JOB_APPLIED_TOPIC, String.valueOf(jobId)).get();
-            System.out.println("Published Job Applied Event for Job ID: " + jobId);
+            log.info("Published Job Applied Event for Job ID: " + jobId);
         } catch (InterruptedException | ExecutionException e) {
-            System.err.println("FAILED to publish event for Job ID: " + jobId + ". Error: " + e.getMessage());
+            log.error("FAILED to publish event for Job ID: " + jobId + ". Error: " + e.getMessage());
 
             throw e;
         }
