@@ -11,9 +11,10 @@ import org.springframework.stereotype.Service;
 public class KafkaConsumerService {
 
     private final JobService jobService;
-    private static final String JOB_APPLIED_TOPIC = "job-application-events";
 
-    @KafkaListener(topics = JOB_APPLIED_TOPIC , groupId = "job_service_group")
+
+    @KafkaListener(topics = "${app.kafka.topics.job-application}" ,
+                    groupId = "${app.kafka.group-id}")
     public void handleApplicationSubmittedEvent(String jobIdString){
         Long jobId = Long.valueOf(jobIdString);
 

@@ -1,14 +1,14 @@
 server:
-  port: 8082
+  port: ${JOB_SERVICE_PORT}
 
 spring:
   application:
     name: jobservice
 
   datasource:
-    url: jdbc:mysql://localhost:3306/jobpost_db
-    username: root
-    password: root
+    url: ${JOB_DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -20,26 +20,32 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
     consumer:
-      group-id: job_service_group
+      group-id: ${KAFKA_JOB_SERVICE_GROUP_ID}
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
   data:
     redis:
-      host: redis-15953.crce179.ap-south-1-1.ec2.redns.redis-cloud.com
-      port: 15953
-      username: default
-      password: E1xbwjGgfXfj0cGJJKvud8WImWEfPF6g
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      username: ${REDIS_USERNAME}
+      password: ${REDIS_PASSWORD}
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: ${EUREKA_SERVER_URL}
     register-with-eureka: true
     fetch-registry: true
+
+app:
+  kafka:
+    topics:
+      job-application: ${KAFKA_TOPIC_JOB_APPLICATION}
+    group-id: ${KAFKA_GROUP_ID_JOB_SERVICE}

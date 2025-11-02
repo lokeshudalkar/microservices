@@ -3,6 +3,7 @@ package com.jobportal.ApplicationService.JobApplicationService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +15,9 @@ import java.util.concurrent.ExecutionException;
 public class KafkaProducerService {
 
     private final KafkaTemplate<String , String> kafkaTemplate;
-    private static final String JOB_APPLIED_TOPIC = "job-application-events";
+
+    @Value("${app.kafka.topics.job-application}")
+    private  String JOB_APPLIED_TOPIC;
 
     public void sendApplicationSubmittedEvent(Long jobId) throws InterruptedException , ExecutionException{
         try {
