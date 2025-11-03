@@ -48,4 +48,4 @@ app:
   kafka:
     topics:
       job-application: ${KAFKA_TOPIC_JOB_APPLICATION}
-    group-id: ${KAFKA_GROUP_ID_JOB_SERVICE}
+    group-id: ${KAFKA_JOB_SERVICE_GROUP_ID}
