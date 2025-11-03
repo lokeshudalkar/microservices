@@ -40,3 +40,6 @@ app:
     topics:
       job-application: ${KAFKA_TOPIC_JOB_APPLICATION}
 
+logging:
+  level:
+    org.springframework.boot.autoconfigure: DEBUG
