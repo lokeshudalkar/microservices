@@ -24,3 +24,27 @@ eureka:
 
 app:
   jwt-secret: ${JWT_SECRET_KEY}
+
+
+logging:
+  pattern:
+
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}] %m%n"
+
+# ----------------------------------------------------------------
+# MANAGEMENT, ACTUATOR, & TRACING CONFIGURATION
+# ----------------------------------------------------------------
+management:
+  tracing:
+    enabled: true
+    zipkin:
+      sender:
+        type: "web"
+      base-url: "http://zipkin:9411/api/v2/spans"
+    sampling:
+      probability: 1.0
+
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,prometheus,zipkin"
