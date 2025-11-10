@@ -28,8 +28,7 @@ app:
 
 logging:
   pattern:
-
-    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}] %m%n"
+    console: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}] %m%n"
 
 # ----------------------------------------------------------------
 # MANAGEMENT, ACTUATOR, & TRACING CONFIGURATION
@@ -38,8 +37,6 @@ management:
   tracing:
     enabled: true
     zipkin:
-      sender:
-        type: "web"
       base-url: "http://zipkin:9411/api/v2/spans"
     sampling:
       probability: 1.0

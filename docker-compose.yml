@@ -1,5 +1,6 @@
 version: '3.8'
 
+
 services:
   # --------------------------
   # MySQL
@@ -75,6 +76,7 @@ services:
       - "${DISCOVERY_SERVER_PORT}:${DISCOVERY_SERVER_PORT}"
     environment:
       DISCOVERY_SERVER_PORT: ${DISCOVERY_SERVER_PORT}
+      ZIPKIN_BASE_URL: ${ZIPKIN_BASE_URL}
     networks:
       - jobportal-net
 
@@ -85,6 +87,8 @@ services:
     build: ./user-service
     ports:
       - "${USER_SERVICE_PORT}:${USER_SERVICE_PORT}"
+    env_file:
+      - .env
     environment:
       USER_SERVICE_PORT: ${USER_SERVICE_PORT}
       USER_DB_URL: ${USER_DB_URL}
@@ -92,6 +96,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      ZIPKIN_BASE_URL: ${ZIPKIN_BASE_URL}
     depends_on:
       - mysql
       - discovery-server
@@ -118,6 +123,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
       KAFKA_JOB_SERVICE_GROUP_ID: ${KAFKA_JOB_SERVICE_GROUP_ID}
       KAFKA_TOPIC_JOB_APPLICATION: ${KAFKA_TOPIC_JOB_APPLICATION}
+      ZIPKIN_BASE_URL: ${ZIPKIN_BASE_URL}
     depends_on:
       - mysql
       - redis
@@ -142,6 +148,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
       KAFKA_APPLICATION_SERVICE_GROUP_ID: ${KAFKA_APPLICATION_SERVICE_GROUP_ID}
       KAFKA_TOPIC_JOB_APPLICATION: ${KAFKA_TOPIC_JOB_APPLICATION}
+      ZIPKIN_BASE_URL: ${ZIPKIN_BASE_URL}
     depends_on:
       - mysql
       - kafka
@@ -156,10 +163,13 @@ services:
     build: ./api-gateway
     ports:
       - "${API_GATEWAY_PORT}:${API_GATEWAY_PORT}"
+    env_file:
+      - .env
     environment:
       API_GATEWAY_PORT: ${API_GATEWAY_PORT}
       EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      ZIPKIN_BASE_URL: ${ZIPKIN_BASE_URL}
     depends_on:
       - discovery-server
       - user-service
