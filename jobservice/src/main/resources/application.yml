@@ -59,13 +59,9 @@ logging:
 # ----------------------------------------------------------------
 management:
   tracing:
-    enabled: true
-    zipkin:
-      base-url: "http://zipkin:9411/api/v2/spans"
     sampling:
       probability: 1.0
 
-  endpoints:
-    web:
-      exposure:
-        include: "health,info,prometheus,zipkin"
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_BASE_URL:http://zipkin:9411}/api/v2/spans

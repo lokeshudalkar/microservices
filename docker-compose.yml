@@ -100,6 +100,7 @@ services:
     depends_on:
       - mysql
       - discovery-server
+      - zipkin
     networks:
       - jobportal-net
 
@@ -129,6 +130,7 @@ services:
       - redis
       - kafka
       - discovery-server
+      - zipkin
     networks:
       - jobportal-net
 
@@ -153,6 +155,7 @@ services:
       - mysql
       - kafka
       - discovery-server
+      - zipkin
     networks:
       - jobportal-net
 
@@ -175,6 +178,7 @@ services:
       - user-service
       - jobservice
       - application-service
+      - zipkin
     networks:
       - jobportal-net
 
