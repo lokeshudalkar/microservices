@@ -21,6 +21,7 @@ public class JobService  {
     private final JobApplicationClient jobApplicationClient;
 
     @Transactional
+    @CacheEvict(value = {"allJobs", "jobsearch"}, allEntries = true)
     public JobPost createJobPost(JobPostRequest jobPostRequest , Long recruiterId){
         JobPost jobPost = JobPost.builder()
                 .title(jobPostRequest.getTitle())
