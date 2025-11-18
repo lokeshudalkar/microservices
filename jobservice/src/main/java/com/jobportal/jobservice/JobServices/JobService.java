@@ -79,6 +79,7 @@ public class JobService  {
         return jobPostRepository.findAll();
     }
 
+
     @Transactional
     public JobPost incrementApplicationCount(Long jobId) {
         JobPost jobPost = jobPostRepository.findById(jobId)

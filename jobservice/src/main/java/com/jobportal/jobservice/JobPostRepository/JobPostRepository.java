@@ -3,9 +3,9 @@ package com.jobportal.jobservice.JobPostRepository;
 
 import com.jobportal.jobservice.Entity.JobPost;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.awt.print.Pageable;
 import java.util.List;
 
 
@@ -14,4 +14,6 @@ public interface JobPostRepository extends JpaRepository<JobPost, Long> {
     Page<JobPost> findByTitleContainingOrDescriptionContainingOrLocationContainingAllIgnoreCase(
         String title, String description, String location , Pageable pageable
     );
+
+    boolean existsByTitleAndCompanyNameAndRecruiterId(String title, String companyName, Long recruiterId);
 }

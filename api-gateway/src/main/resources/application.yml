@@ -59,6 +59,9 @@ spring:
       discovery:
         locator:
           enabled: true
+  threads:
+    virtual:
+      enabled: true
 
 
 eureka:

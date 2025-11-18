@@ -42,11 +42,11 @@ public class JobApplicationController {
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Job With Id " + jobId + " Not Found");
         }
-        jobApplicationService.applyToJob(userClient.getSeekerId(email),
+        jobApplicationService.applyToJobAsync(userClient.getSeekerId(email),
                 jobApplicationDto , jobId);
 
 //        jobPostClient.incrementApplicationCount(jobId);
 //        kafkaProducerService.sendApplicationSubmittedEvent(jobId);
-        return new ResponseEntity<>("Application Submitted Successfully" , HttpStatus.CREATED);
+        return ResponseEntity.accepted().body("Application Submitted Successfully");
     }
 }

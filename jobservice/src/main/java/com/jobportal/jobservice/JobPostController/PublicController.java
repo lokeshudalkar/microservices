@@ -7,10 +7,10 @@ import com.jobportal.jobservice.JobServices.JobService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.print.Pageable;
 
 @RestController
 @RequestMapping("/public")
@@ -23,7 +23,7 @@ public class PublicController {
     @GetMapping
     @Cacheable(value = "allJobs" , key = "#pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort")
     public Page<JobPost> getAllJobPost(Pageable pageable){
-        return jobPostRepository.findAll((org.springframework.data.domain.Pageable) pageable);
+        return jobPostRepository.findAll(pageable);
     }
 
     @GetMapping("/search")
@@ -37,7 +37,7 @@ public class PublicController {
                     );
         }
         else {
-            jobs = jobPostRepository.findAll((org.springframework.data.domain.Pageable) pageable);
+            jobs = jobPostRepository.findAll(pageable);
         }
         return jobs;
     }
