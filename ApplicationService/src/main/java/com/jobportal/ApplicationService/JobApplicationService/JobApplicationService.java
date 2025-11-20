@@ -94,4 +94,6 @@ public class JobApplicationService {
         outboxEventRepository.save(events);
         return CompletableFuture.completedFuture(null);
     }
+
+
 }

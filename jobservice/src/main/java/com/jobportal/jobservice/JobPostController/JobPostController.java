@@ -1,16 +1,20 @@
 package com.jobportal.jobservice.JobPostController;
 
 import com.jobportal.jobservice.Entity.JobPost;
+import com.jobportal.jobservice.JobPostDTOs.JobApplication;
 import com.jobportal.jobservice.JobPostDTOs.JobPostRequest;
 import com.jobportal.jobservice.JobPostDTOs.User;
 import com.jobportal.jobservice.JobPostRepository.JobPostRepository;
 import com.jobportal.jobservice.JobServices.JobService;
+import com.jobportal.jobservice.feignClient.JobApplicationClient;
 import com.jobportal.jobservice.feignClient.UserClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -21,6 +25,7 @@ public class JobPostController {
     private final JobService jobService;
     private final JobPostRepository jobPostRepository;
     private final UserClient userClient;
+    private final JobApplicationClient jobApplicationClient;
 
     @PostMapping("/post")
     public ResponseEntity<?> createJob(
@@ -84,5 +89,31 @@ public class JobPostController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not a recruiter or does not exist.");
         }
         return ResponseEntity.ok(jobPostRepository.findByRecruiterId(recruiter.getId()));
+    }
+
+    @GetMapping("/{jobId}/applications")
+    public ResponseEntity<?> getJobApplications(
+            @RequestHeader("X-User-Email") String email,
+            @PathVariable Long jobId) {
+
+        String recruiterEmail = email;
+        User recruiter = userClient.getUserIdByEmail(recruiterEmail);
+
+        if (recruiter == null || !"RECRUITER".equals(recruiter.getRole())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only recruiters can view job applications.");
+        }
+
+        JobPost jobPost = jobPostRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+
+
+        if (!jobPost.getRecruiterId().equals(recruiter.getId())) { //
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authorized to view applications for this job.");
+        }
+
+
+        List<JobApplication> applications = jobApplicationClient.getApplicationsForJob(jobId);
+
+        return ResponseEntity.ok(applications);
     }
 }

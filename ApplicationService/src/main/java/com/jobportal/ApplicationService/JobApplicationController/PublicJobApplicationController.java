@@ -27,4 +27,9 @@ public class PublicJobApplicationController {
     public void deleteApplicationOfJobPost(@PathVariable("jobId") Long jobId){
         jobApplicationRepository.deleteByJobPostId(jobId);
     }
+
+    @GetMapping("/applications-list/{jobId}")
+    public List<JobApplication> getApplicationsListByJobId(@PathVariable("jobId") Long jobId){
+        return jobApplicationRepository.findByJobPostId(jobId); //
+    }
 }
