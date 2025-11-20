@@ -16,4 +16,11 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication ,
     @Modifying
     @Transactional
     void deleteByJobPostId(Long jobId);
+
+    /**
+     * this for finding the all applications of seeker when he/she is logged in.
+     * @param seekerId
+     * @return
+     */
+    List<JobApplication> findBySeekerId(Long seekerId);
 }

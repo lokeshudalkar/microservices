@@ -6,11 +6,11 @@ import com.jobportal.jobservice.JobPostRepository.JobPostRepository;
 import com.jobportal.jobservice.JobServices.JobService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/public")
@@ -21,23 +21,23 @@ public class PublicController {
     private final JobService jobService;
 
     @GetMapping
-    @Cacheable("allJobs")
-    public List<JobPost> getAllJobPost(){
-        return jobPostRepository.findAll();
+    @Cacheable(value = "allJobs" , key = "#pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort")
+    public Page<JobPost> getAllJobPost(Pageable pageable){
+        return jobPostRepository.findAll(pageable);
     }
 
     @GetMapping("/search")
-    @Cacheable(value = "jobsearch" , key = "#keyword != null ? #keyword : 'all'")
-    public List<JobPost> searchJobsByKeyword(@RequestParam(required = false)  String keyword){
-        List<JobPost> jobs;
+    @Cacheable(value = "jobsearch", key = "(#keyword != null ? #keyword : 'all') + '-' + #pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort")
+    public Page<JobPost> searchJobsByKeyword(@RequestParam(required = false)  String keyword , Pageable pageable){
+        Page<JobPost> jobs;
         if(StringUtils.hasText(keyword)){
             jobs = jobPostRepository
                     .findByTitleContainingOrDescriptionContainingOrLocationContainingAllIgnoreCase(
-                            keyword, keyword, keyword
+                            keyword, keyword, keyword , pageable
                     );
         }
         else {
-            jobs = jobPostRepository.findAll();
+            jobs = jobPostRepository.findAll(pageable);
         }
         return jobs;
     }
