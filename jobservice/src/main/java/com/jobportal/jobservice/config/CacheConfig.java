@@ -36,7 +36,7 @@ public class CacheConfig {
                 ObjectMapper.DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY
         );
-
+        objectMapper.addMixIn(org.springframework.data.domain.PageImpl.class, PageImplMixin.class);
         GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
 
         RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
