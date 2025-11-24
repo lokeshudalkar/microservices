@@ -8,7 +8,10 @@ import com.jobportal.jobservice.JobPostRepository.JobPostRepository;
 import com.jobportal.jobservice.JobServices.JobService;
 import com.jobportal.jobservice.feignClient.JobApplicationClient;
 import com.jobportal.jobservice.feignClient.UserClient;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -37,9 +40,12 @@ public class JobPostController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not a recruiter.");
         }
 
-        User recruiter = userClient.getUserIdByEmail(email);
+//        User recruiter = userClient.getUserIdByEmail(email);
+        User recruiter = jobService.getRecruiterByEmail(email);
+
         if (recruiter == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Recruiter not found.");
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body("Unable to verify Recruiter identity. User Service is down.");
         }
 
         JobPost jobPost = jobService.createJobPost(jobPostRequest, recruiter.getId());
@@ -94,7 +100,8 @@ public class JobPostController {
     @GetMapping("/{jobId}/applications")
     public ResponseEntity<?> getJobApplications(
             @RequestHeader("X-User-Email") String email,
-            @PathVariable Long jobId) {
+            @PathVariable Long jobId ,
+            Pageable pageable) {
 
         String recruiterEmail = email;
         User recruiter = userClient.getUserIdByEmail(recruiterEmail);
@@ -112,7 +119,8 @@ public class JobPostController {
         }
 
 
-        List<JobApplication> applications = jobApplicationClient.getApplicationsForJob(jobId);
+//        Page<JobApplication> applications = jobApplicationClient.getApplicationsForJob(jobId);
+        Page<JobApplication> applications = jobService.getApplicationsForJob(jobId);
 
         return ResponseEntity.ok(applications);
     }

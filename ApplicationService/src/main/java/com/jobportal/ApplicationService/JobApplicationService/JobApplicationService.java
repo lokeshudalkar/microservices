@@ -4,10 +4,12 @@ package com.jobportal.ApplicationService.JobApplicationService;
 import com.jobportal.ApplicationService.Entity.Events;
 import com.jobportal.ApplicationService.Entity.JobApplication;
 import com.jobportal.ApplicationService.FeignClient.JobPostClient;
+import com.jobportal.ApplicationService.FeignClient.UserClient;
 import com.jobportal.ApplicationService.JobApplicationDto.JobApplicationDto;
 import com.jobportal.ApplicationService.JobApplicationRepository.JobApplicationRepository;
 import com.jobportal.ApplicationService.JobApplicationRepository.OutboxEventRepository;
 import com.jobportal.ApplicationService.enums.EventStatus;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,8 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class JobApplicationService {
 
+    private final UserClient userClient;
+    private final JobPostClient jobPostClient;
     private final JobApplicationRepository jobApplicationRepository;
     private final OutboxEventRepository outboxEventRepository;
 
@@ -95,5 +99,33 @@ public class JobApplicationService {
         return CompletableFuture.completedFuture(null);
     }
 
+    @CircuitBreaker(name = "userServiceBreaker", fallbackMethod = "getSeekerIdFallback")
+    public Long getSeekerIdByEmail(String email) {
+        return userClient.getSeekerId(email);
+    }
 
+    // 3. Fallback Method
+    public Long getSeekerIdFallback(String email, Throwable t) {
+        System.out.println("User Service is down. Cannot fetch Seeker ID for email: " + email);
+        return null;
+    }
+
+    @CircuitBreaker(name = "jobServiceBreaker", fallbackMethod = "validateJobFallback")
+    public void validateJobExists(Long jobId) {
+
+        jobPostClient.getJobId(jobId);
+    }
+
+    // 3. Smart Fallback
+    public void validateJobFallback(Long jobId, Throwable t) {
+        // If the error is actually "404 Not Found", we want to re-throw it
+        // because that is a valid business scenario, not a system failure.
+        if (t instanceof feign.FeignException.NotFound) {
+            throw (feign.FeignException.NotFound) t;
+        }
+
+        // For everything else (Timeouts, 500 errors, Circuit Open),
+        // we throw a specific "Service Unavailable" message.
+        throw new RuntimeException("JOB_SERVICE_DOWN");
+    }
 }
