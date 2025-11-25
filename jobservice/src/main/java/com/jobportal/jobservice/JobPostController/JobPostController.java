@@ -9,6 +9,7 @@ import com.jobportal.jobservice.JobServices.JobService;
 import com.jobportal.jobservice.feignClient.JobApplicationClient;
 import com.jobportal.jobservice.feignClient.UserClient;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,7 +35,7 @@ public class JobPostController {
     public ResponseEntity<?> createJob(
             @RequestHeader("X-User-Email") String email,
             @RequestHeader("X-User-Role") String role,
-            @RequestBody JobPostRequest jobPostRequest) {
+            @Valid  @RequestBody JobPostRequest jobPostRequest) {
 
         if (!"RECRUITER".equals(role)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not a recruiter.");
@@ -79,10 +80,9 @@ public class JobPostController {
         if (recruiter == null || !"RECRUITER".equals(recruiter.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not a recruiter or does not exist.");
         }
-        if(jobService.deleteJob(jobId , recruiter.getId())){
-            return ResponseEntity.ok().body("Job is successfully deleted");
-        }
-        return ResponseEntity.badRequest().body("your not allowed to delete this job");
+        jobService.deleteJob(jobId , recruiter.getId());
+        return ResponseEntity.ok().body("Job is successfully deleted");
+
     }
 
     @GetMapping("/my-jobs")
@@ -120,7 +120,7 @@ public class JobPostController {
 
 
 //        Page<JobApplication> applications = jobApplicationClient.getApplicationsForJob(jobId);
-        Page<JobApplication> applications = jobService.getApplicationsForJob(jobId);
+        List<JobApplication> applications = jobService.getApplicationsForJob(jobId);
 
         return ResponseEntity.ok(applications);
     }

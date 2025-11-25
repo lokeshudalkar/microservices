@@ -19,5 +19,5 @@ public interface JobApplicationClient {
     Void deleteJobApplicationOfJobPost(@PathVariable("jobId") Long jobId);
 
     @GetMapping("/all/applications-list/{jobId}")
-    Page<JobApplication> getApplicationsForJob(@PathVariable("jobId") Long jobId);
+    List<JobApplication> getApplicationsForJob(@PathVariable("jobId") Long jobId);
 }

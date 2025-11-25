@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -118,13 +119,13 @@ public class JobService  {
 
 
     @CircuitBreaker(name = "applicationServiceBreaker", fallbackMethod = "getJobApplicationsFallback")
-    public Page<JobApplication> getApplicationsForJob(Long jobId) {
+    public List<JobApplication> getApplicationsForJob(Long jobId) {
         return jobApplicationClient.getApplicationsForJob(jobId);
     }
 
-    public Page<JobApplication> getJobApplicationsFallback(Long jobId, Throwable t) {
+    public List<JobApplication> getJobApplicationsFallback(Long jobId, Throwable t) {
         System.out.println("Application Service is down. Returning empty application list. Error: " + t.getMessage());
-        return Page.empty();
+        return Arrays.asList();
 
     }
 

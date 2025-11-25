@@ -1,7 +1,8 @@
 package com.jobportal.jobservice.JobPostDTOs;
 
 import lombok.*;
-import org.antlr.v4.runtime.misc.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Min;
 
 
 @Data
@@ -10,17 +11,19 @@ import org.antlr.v4.runtime.misc.NotNull;
 @Builder
 public class JobPostRequest {
 
-    @NotNull
+
+    @NotBlank(message = "Title is required")
     private String title;
 
-    @NotNull
+    @NotBlank(message = "Company Name is required")
     private String companyName;
 
-    @NotNull
+    @NotBlank(message = "Description is required")
     private String description;
 
-    @NotNull
+    @NotBlank(message = "Location is required")
     private String location;
 
+    @Min(value = 0, message = "Salary cannot be negative")
     private double salary;
 }

@@ -65,7 +65,7 @@ public class JobApplicationController {
             }
             throw e; // unexpected error
         }
-
+        jobApplicationService.validateApplication(seekerId, jobId);
         jobApplicationService.applyToJobAsync(seekerId ,
                 jobApplicationDto , jobId);
 

@@ -63,7 +63,12 @@ public class JobApplicationService {
         outboxEventRepository.save(events);
 
     }
-
+    public void validateApplication(Long seekerId, Long jobId) {
+        boolean alreadyApplied = jobApplicationRepository.existsBySeekerIdAndJobPostId(seekerId, jobId);
+        if (alreadyApplied) {
+            throw new IllegalStateException("You have already applied to this job.");
+        }
+    }
     @Async("virtualThreadExecutor")
     @Transactional
     public CompletableFuture<Void> applyToJobAsync(Long seekerId , JobApplicationDto jobApplicationDto , Long jobId ){
@@ -73,12 +78,7 @@ public class JobApplicationService {
             throw new IllegalStateException("Resume url cannot be empty");
         }
 
-        boolean alreadyApplied = jobApplicationRepository
-        .existsBySeekerIdAndJobPostId(seekerId, jobId);
 
-        if (alreadyApplied) {
-            throw new IllegalStateException("You have already applied to this job.");
-        }
 
         JobApplication jobApplication = JobApplication.builder()
         .resumeUrl(jobApplicationDto.getResumeUrl())

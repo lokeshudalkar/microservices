@@ -3,7 +3,6 @@ package com.jobportal.ApplicationService.JobApplicationService;
 import com.jobportal.ApplicationService.Entity.Events;
 import com.jobportal.ApplicationService.JobApplicationRepository.OutboxEventRepository;
 import com.jobportal.ApplicationService.enums.EventStatus;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,7 +20,6 @@ public class OutboxEventPoller {
     private final KafkaProducerService kafkaProducerService;
 
     @Scheduled(fixedDelay = 5000) // 5 seconds
-    @Transactional
     public void pollAndPublishEvents(){
         log.info("Polling for PENDING outbox events...");
 
@@ -32,7 +30,7 @@ public class OutboxEventPoller {
 
         for (Events event : events){
             try {
-                kafkaProducerService.sendApplicationSubmittedEvent(Long.valueOf(event.getPayload()));
+                kafkaProducerService.sendApplicationSubmittedEvent(event.getId(),  Long.valueOf(event.getPayload()));
 
                 event.setStatus(EventStatus.SENT);
                 outboxEventRepository.save(event);

@@ -19,13 +19,14 @@ public class KafkaProducerService {
     @Value("${app.kafka.topics.job-application}")
     private  String JOB_APPLIED_TOPIC;
 
-    public void sendApplicationSubmittedEvent(Long jobId) throws InterruptedException , ExecutionException{
+    public void sendApplicationSubmittedEvent(Long eventId , Long jobId) throws InterruptedException , ExecutionException{
         try {
-            kafkaTemplate.send(JOB_APPLIED_TOPIC, String.valueOf(jobId)).get();
+            String payload = String.format("{\"eventId\":%d, \"jobId\":%d}", eventId, jobId);
+
+            kafkaTemplate.send(JOB_APPLIED_TOPIC, String.valueOf(jobId) , payload).get();
             log.info("Published Job Applied Event for Job ID: " + jobId);
         } catch (InterruptedException | ExecutionException e) {
-            log.error("FAILED to publish event for Job ID: " + jobId + ". Error: " + e.getMessage());
-
+            log.error("FAILED to publish event ID: {}. Error: {}", eventId, e.getMessage());
             throw e;
         }
 

@@ -47,6 +47,13 @@ management:
   tracing:
     sampling:
       probability: 1.0
+  endpoints:
+    web:
+      exposure:
+        include: "*"  # Exposes all endpoints (metrics, beans, mappings, etc.)
+    endpoint:
+      health:
+        show-details: always
 
   zipkin:
     tracing:
