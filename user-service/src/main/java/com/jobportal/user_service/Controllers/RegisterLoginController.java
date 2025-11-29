@@ -22,7 +22,6 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@CrossOrigin(origins = "http://127.0.0.1:5500")
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class RegisterLoginController {
@@ -61,6 +60,7 @@ public class RegisterLoginController {
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authentication failed"));
             }
+
         } catch (Exception e) {
             log.error("Exception occurred while createAuthenticationToken ", e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Incorrect username or password"));
