@@ -4,6 +4,11 @@ server:
 spring :
   application :
     name : application-service
+
+  jackson:
+    visibility:
+      field: any
+
   datasource :
     url: ${APPLICATION_DB_URL}
     username: ${DB_USERNAME}
@@ -24,6 +29,7 @@ spring :
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
 
   threads:
     virtual:

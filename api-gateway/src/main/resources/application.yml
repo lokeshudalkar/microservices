@@ -4,9 +4,19 @@ server:
 spring:
   application:
     name: api-gateway
+
+  jackson:
+    visibility:
+      field: any
+
   cloud:
     gateway:
       routes:
+        # -----------------------------
+        # NORMAL GATEWAY ROUTES
+        # -----------------------------
+
+        # User Authentication (Public)
         - id: user-public
           uri: lb://user-service
           predicates:
@@ -14,6 +24,7 @@ spring:
           filters:
             - StripPrefix=1
 
+        # User Protected Endpoints
         - id: user-protected
           uri: lb://user-service
           predicates:
@@ -22,6 +33,7 @@ spring:
             - StripPrefix=1
             - name: AuthenticationFilter
 
+        # Job Protected Endpoints
         - id: job-service-protected
           uri: lb://jobservice
           predicates:
@@ -30,7 +42,7 @@ spring:
             - StripPrefix=1
             - name: AuthenticationFilter
 
-
+        # Job Public Endpoints
         - id: job-service-public
           uri: lb://jobservice
           predicates:
@@ -38,32 +50,35 @@ spring:
           filters:
             - StripPrefix=1
 
-        - id: job-application-protected
+        # Job Applications Protected
+        - id: application-protected
           uri: lb://application-service
           predicates:
-              - Path=/api/job-applications/**
+            - Path=/api/job-applications/**
           filters:
-              - StripPrefix=1
-              - name: AuthenticationFilter
+            - StripPrefix=1
+            - name: AuthenticationFilter
 
-
-        - id: job-application-public
+        # Job Applications Public
+        - id: application-public
           uri: lb://application-service
           predicates:
-              - Path=/api/all/**
+            - Path=/api/all/**
           filters:
-              - StripPrefix=1
-
-
+            - StripPrefix=1
 
       discovery:
         locator:
           enabled: true
+
   threads:
     virtual:
       enabled: true
 
 
+# -----------------------------
+# EUREKA CONFIG
+# -----------------------------
 eureka:
   client:
     service-url:
@@ -71,29 +86,43 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
 
-app:
-  jwt-secret: ${JWT_SECRET_KEY}
 
-
+# -----------------------------
+# LOGGING FORMAT
+# -----------------------------
 logging:
   pattern:
     console: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}] %m%n"
 
-# ----------------------------------------------------------------
-# MANAGEMENT, ACTUATOR, & TRACING CONFIGURATION
-# ----------------------------------------------------------------
+
+# -----------------------------
+# ACTUATOR, HEALTH, ZIPKIN
+# -----------------------------
 management:
   tracing:
     sampling:
       probability: 1.0
+
   endpoints:
     web:
       exposure:
-        include: "*"  # Exposes all endpoints (metrics, beans, mappings, etc.)
-    endpoint:
-      health:
-        show-details: always
+        include: "*"
+
+  endpoint:
+    health:
+      show-details: always
 
   zipkin:
     tracing:
       endpoint: ${ZIPKIN_BASE_URL:http://zipkin:9411}/api/v2/spans
+
+
+
+
+
+
+# -----------------------------
+# JWT SECRET
+# -----------------------------
+app:
+  jwt-secret: ${JWT_SECRET_KEY}
