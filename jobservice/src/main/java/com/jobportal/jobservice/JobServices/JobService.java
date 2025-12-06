@@ -2,23 +2,31 @@ package com.jobportal.jobservice.JobServices;
 
 
 import com.jobportal.jobservice.Entity.JobPost;
+import com.jobportal.jobservice.JobPostDTOs.JobApplication;
 import com.jobportal.jobservice.JobPostDTOs.JobPostRequest;
+import com.jobportal.jobservice.JobPostDTOs.User;
 import com.jobportal.jobservice.JobPostRepository.JobPostRepository;
 import com.jobportal.jobservice.feignClient.JobApplicationClient;
+import com.jobportal.jobservice.feignClient.UserClient;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class JobService  {
 
+    private final UserClient userClient;
     private final JobPostRepository jobPostRepository;
     private final JobApplicationClient jobApplicationClient;
+
 
     @Transactional
     @CacheEvict(value = {"allJobs", "jobsearch"}, allEntries = true)
@@ -62,6 +70,7 @@ public class JobService  {
 
     @Transactional
     @CacheEvict(value = {"allJobs" , "jobsearch"} , allEntries = true)
+    @CircuitBreaker(name = "applicationServiceBreaker", fallbackMethod = "deleteJobFallback")
     public boolean deleteJob(Long jobId, Long recruiterId) {
         JobPost jobPost = jobPostRepository.findById(jobId)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
@@ -73,6 +82,11 @@ public class JobService  {
         jobApplicationClient.deleteJobApplicationOfJobPost(jobId);
         jobPostRepository.delete(jobPost);
         return true;
+    }
+
+    public boolean deleteJobFallback(Long jobId, Long recruiterId, Throwable t) {
+        System.out.println("Application Service is down. Cannot delete job applications. Aborting deletion. Error: " + t.getMessage());
+        return false;
     }
 
     public List<JobPost> getAlljobs(){
@@ -88,5 +102,32 @@ public class JobService  {
         jobPost.setApplicationCount(jobPost.getApplicationCount() + 1);
         return jobPostRepository.save(jobPost);
     }
+
+
+
+
+    @CircuitBreaker(name = "userServiceBreaker", fallbackMethod = "getRecruiterFallback")
+    public User getRecruiterByEmail(String email) {
+        return userClient.getUserIdByEmail(email);
+    }
+
+    //  the fallback method
+    public User getRecruiterFallback(String email, Throwable t) {
+        System.out.println("User Service is down, cannot fetch Recruiter ID: " + t.getMessage());
+        return null;
+    }
+
+
+    @CircuitBreaker(name = "applicationServiceBreaker", fallbackMethod = "getJobApplicationsFallback")
+    public List<JobApplication> getApplicationsForJob(Long jobId) {
+        return jobApplicationClient.getApplicationsForJob(jobId);
+    }
+
+    public List<JobApplication> getJobApplicationsFallback(Long jobId, Throwable t) {
+        System.out.println("Application Service is down. Returning empty application list. Error: " + t.getMessage());
+        return Arrays.asList();
+
+    }
+
 
 }

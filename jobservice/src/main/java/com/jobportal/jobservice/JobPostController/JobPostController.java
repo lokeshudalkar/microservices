@@ -8,10 +8,11 @@ import com.jobportal.jobservice.JobPostRepository.JobPostRepository;
 import com.jobportal.jobservice.JobServices.JobService;
 import com.jobportal.jobservice.feignClient.JobApplicationClient;
 import com.jobportal.jobservice.feignClient.UserClient;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,15 +32,18 @@ public class JobPostController {
     public ResponseEntity<?> createJob(
             @RequestHeader("X-User-Email") String email,
             @RequestHeader("X-User-Role") String role,
-            @RequestBody JobPostRequest jobPostRequest) {
+            @Valid  @RequestBody JobPostRequest jobPostRequest) {
 
         if (!"RECRUITER".equals(role)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not a recruiter.");
         }
 
-        User recruiter = userClient.getUserIdByEmail(email);
+//        User recruiter = userClient.getUserIdByEmail(email);
+        User recruiter = jobService.getRecruiterByEmail(email);
+
         if (recruiter == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Recruiter not found.");
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body("Unable to verify Recruiter identity. User Service is down.");
         }
 
         JobPost jobPost = jobService.createJobPost(jobPostRequest, recruiter.getId());
@@ -73,10 +77,9 @@ public class JobPostController {
         if (recruiter == null || !"RECRUITER".equals(recruiter.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not a recruiter or does not exist.");
         }
-        if(jobService.deleteJob(jobId , recruiter.getId())){
-            return ResponseEntity.ok().body("Job is successfully deleted");
-        }
-        return ResponseEntity.badRequest().body("your not allowed to delete this job");
+        jobService.deleteJob(jobId , recruiter.getId());
+        return ResponseEntity.ok().body("Job is successfully deleted");
+
     }
 
     @GetMapping("/my-jobs")
@@ -94,7 +97,8 @@ public class JobPostController {
     @GetMapping("/{jobId}/applications")
     public ResponseEntity<?> getJobApplications(
             @RequestHeader("X-User-Email") String email,
-            @PathVariable Long jobId) {
+            @PathVariable Long jobId ,
+            Pageable pageable) {
 
         String recruiterEmail = email;
         User recruiter = userClient.getUserIdByEmail(recruiterEmail);
@@ -112,7 +116,8 @@ public class JobPostController {
         }
 
 
-        List<JobApplication> applications = jobApplicationClient.getApplicationsForJob(jobId);
+//        Page<JobApplication> applications = jobApplicationClient.getApplicationsForJob(jobId);
+        List<JobApplication> applications = jobService.getApplicationsForJob(jobId);
 
         return ResponseEntity.ok(applications);
     }

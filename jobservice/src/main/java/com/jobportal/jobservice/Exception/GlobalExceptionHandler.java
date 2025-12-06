@@ -15,9 +15,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleRuntimeException(RuntimeException ex) {
 
         // Create a simple map to hold the error message
-        Map<String, String> response = Map.of("trace", ex.getMessage());
-
-        // Return the map as a JSON object with a 400 Bad Request status
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        if (ex instanceof IllegalArgumentException || ex instanceof IllegalStateException) {
+            return new ResponseEntity<>(Map.of("error", ex.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+        // For everything else (NullPointer, DB connection), return 500
+        return new ResponseEntity<>(Map.of("error", "Internal Server Error"), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

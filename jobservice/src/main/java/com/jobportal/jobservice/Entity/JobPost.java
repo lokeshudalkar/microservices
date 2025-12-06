@@ -13,7 +13,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "job_post")
+@Table(name = "job_post", indexes = {
+
+    @Index(name = "idx_recruiter_id", columnList = "recruiterId"),
+     @Index(name = "idx_title", columnList = "title"),
+     @Index(name = "idx_location", columnList = "location")
+})
 public class JobPost {
 
 

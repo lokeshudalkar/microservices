@@ -19,7 +19,7 @@ public class UserController {
     private final UserRepository userRepository;
 
     @GetMapping("/{recruiter-id}/recruiter-id")
-    public Long getRecruiterId(@PathVariable Long id) {
+    public Long getRecruiterId(@PathVariable("recruiter-id") Long id) {
         // You can also check if this user is actually a recruiter before returning
         User user = userRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("User not found"));
@@ -32,7 +32,7 @@ public class UserController {
 
     // This Method is for application Service
 
-    @GetMapping("/by_email/{email}") // <-- Revert: Only returns the Long ID (Used by Application Service)
+    @GetMapping("/by_email/{email}") //  Only returns the Long ID (Used by Application Service)
     public Long getSeekerId(@PathVariable String email) {
        User user = userRepository.findByEmail(email).orElseThrow(
                () -> new RuntimeException("User not found with this email")
@@ -43,9 +43,9 @@ public class UserController {
     //This is for Job Service
     @GetMapping("/by-email/{email}")
     public User getUserIdByEmail(@PathVariable String email) {
-       User user = userRepository.findByEmail(email).orElseThrow(
+       return userRepository.findByEmail(email).orElseThrow(
                () -> new RuntimeException("User not found with this email")
        );
-       return user;
+
     }
 }

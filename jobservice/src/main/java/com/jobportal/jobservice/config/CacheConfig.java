@@ -10,6 +10,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -36,7 +37,6 @@ public class CacheConfig {
                 ObjectMapper.DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY
         );
-
         GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
 
         RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()

@@ -4,6 +4,11 @@ server:
 spring:
   application:
     name: user-service
+
+  jackson:
+    visibility:
+      field: any
+
   datasource:
     url: ${USER_DB_URL}
     username: ${DB_USERNAME}
@@ -23,6 +28,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
   threads:
     virtual:
       enabled: true
@@ -47,6 +53,13 @@ management:
   tracing:
     sampling:
       probability: 1.0
+  endpoints:
+    web:
+      exposure:
+        include: "*"  # Exposes all endpoints (metrics, beans, mappings, etc.)
+    endpoint:
+      health:
+        show-details: always
 
   zipkin:
     tracing:

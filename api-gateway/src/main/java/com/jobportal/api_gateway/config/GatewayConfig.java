@@ -21,7 +21,6 @@ public class GatewayConfig {
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
 
-
 //                .route("user-public-register", r -> r
 //                        .path("/api/auth/register")
 //                        .filters(f -> f.stripPrefix(1))

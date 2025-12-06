@@ -11,7 +11,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "job_applications")
+@Table(name = "job_applications", indexes = {
+
+    @Index(name = "idx_seeker_id", columnList = "seekerId"),
+
+    @Index(name = "idx_jobpost_id", columnList = "jobPostId")
+})
 public class JobApplication {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

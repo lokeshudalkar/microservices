@@ -1,6 +1,5 @@
 package com.jobportal.ApplicationService.JobApplicationController;
 
-
 import com.jobportal.ApplicationService.Entity.JobApplication;
 import com.jobportal.ApplicationService.FeignClient.JobPostClient;
 import com.jobportal.ApplicationService.FeignClient.UserClient;
@@ -10,6 +9,8 @@ import com.jobportal.ApplicationService.JobApplicationService.JobApplicationServ
 
 
 import com.jobportal.ApplicationService.JobApplicationService.KafkaProducerService;
+import feign.FeignException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,9 +34,8 @@ public class JobApplicationController {
     private final JobApplicationRepository jobApplicationRepository;
 
 
-
     @PostMapping("/apply-to/{jobId}")
-    public ResponseEntity<?> apply(@RequestHeader("X-User-Email") String email,
+    public ResponseEntity<?> apply(@Valid  @RequestHeader("X-User-Email") String email,
             @RequestHeader("X-User-Role") String role,
             @RequestBody JobApplicationDto jobApplicationDto ,
                @PathVariable Long jobId){
@@ -43,12 +43,29 @@ public class JobApplicationController {
         if(!"SEEKER".equals(role)){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not Seeker");
         }
-        try {
-            jobPostClient.getJobId(jobId);
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Job With Id " + jobId + " Not Found");
+        //circuit breaker method
+        Long seekerId = jobApplicationService.getSeekerIdByEmail(email);
+
+        if (seekerId == null) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body("Cannot apply. User Service is currently unavailable.");
         }
-        jobApplicationService.applyToJobAsync(userClient.getSeekerId(email),
+        try {
+            jobApplicationService.validateJobExists(jobId);
+        }catch (feign.FeignException.NotFound e) {
+            // Scenario 1: Job Service is UP, but Job ID is wrong.
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Job With Id " + jobId + " Not Found");
+        }catch (RuntimeException e) {
+            // Scenario 2: Job Service is DOWN (Circuit Breaker Open or Timeout).
+            if ("JOB_SERVICE_DOWN".equals(e.getMessage())) {
+                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                        .body("Unable to verify Job. Job Service is currently unavailable.");
+            }
+            throw e; // unexpected error
+        }
+        jobApplicationService.validateApplication(seekerId, jobId);
+        jobApplicationService.applyToJobAsync(seekerId ,
                 jobApplicationDto , jobId);
 
 //        jobPostClient.incrementApplicationCount(jobId);
@@ -57,13 +74,18 @@ public class JobApplicationController {
     }
 
     @GetMapping("/my-applications")
-    public ResponseEntity<List<JobApplication>> getMyApplications(@RequestHeader("X-User-Email") String email,
-                                                                  @RequestHeader("X-User-Role") String role) {
+    public ResponseEntity<?> getMyApplications(@RequestHeader("X-User-Email") String email,
+                                               @RequestHeader("X-User-Role") String role) {
         if (!"SEEKER".equals(role)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+        //circuit breaker method
+        Long seekerId = jobApplicationService.getSeekerIdByEmail(email);
 
-        Long seekerId = userClient.getSeekerId(email);
+        if (seekerId == null) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body("Cannot apply. User Service is currently unavailable.");
+        }
 
         List<JobApplication> applications = jobApplicationRepository.findBySeekerId(seekerId);
 

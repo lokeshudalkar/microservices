@@ -5,6 +5,10 @@ spring:
   application:
     name: jobservice
 
+  jackson:
+    visibility:
+      field: any
+
   datasource:
     url: ${JOB_DB_URL}
     username: ${DB_USERNAME}
@@ -25,6 +29,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
   threads:
     virtual:
       enabled: true
@@ -71,7 +76,39 @@ management:
   tracing:
     sampling:
       probability: 1.0
+  endpoints:
+    web:
+      exposure:
+        include: "*"  # Exposes all endpoints (metrics, beans, mappings, etc.)
+    endpoint:
+      health:
+        show-details: always
 
   zipkin:
     tracing:
       endpoint: ${ZIPKIN_BASE_URL:http://zipkin:9411}/api/v2/spans
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      userServiceBreaker:
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 10
+        failureRateThreshold: 50  # Open circuit if 50% of calls fail
+        minimumNumberOfCalls: 5   # Wait for 5 calls before calculating failure rate
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s # Wait 5s before trying again
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
+
+      applicationServiceBreaker:
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 10
+        failureRateThreshold: 50   # Open circuit if 50% of calls fail
+        minimumNumberOfCalls: 5    # Minimum calls before calculating error rate
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
