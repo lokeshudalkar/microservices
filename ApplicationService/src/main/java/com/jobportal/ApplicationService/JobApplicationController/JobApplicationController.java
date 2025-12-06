@@ -1,6 +1,5 @@
 package com.jobportal.ApplicationService.JobApplicationController;
 
-
 import com.jobportal.ApplicationService.Entity.JobApplication;
 import com.jobportal.ApplicationService.FeignClient.JobPostClient;
 import com.jobportal.ApplicationService.FeignClient.UserClient;
@@ -11,6 +10,7 @@ import com.jobportal.ApplicationService.JobApplicationService.JobApplicationServ
 
 import com.jobportal.ApplicationService.JobApplicationService.KafkaProducerService;
 import feign.FeignException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,9 +34,8 @@ public class JobApplicationController {
     private final JobApplicationRepository jobApplicationRepository;
 
 
-
     @PostMapping("/apply-to/{jobId}")
-    public ResponseEntity<?> apply(@RequestHeader("X-User-Email") String email,
+    public ResponseEntity<?> apply(@Valid  @RequestHeader("X-User-Email") String email,
             @RequestHeader("X-User-Role") String role,
             @RequestBody JobApplicationDto jobApplicationDto ,
                @PathVariable Long jobId){
@@ -76,7 +75,7 @@ public class JobApplicationController {
 
     @GetMapping("/my-applications")
     public ResponseEntity<?> getMyApplications(@RequestHeader("X-User-Email") String email,
-                                                                  @RequestHeader("X-User-Role") String role) {
+                                               @RequestHeader("X-User-Role") String role) {
         if (!"SEEKER".equals(role)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -87,7 +86,6 @@ public class JobApplicationController {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                     .body("Cannot apply. User Service is currently unavailable.");
         }
-
 
         List<JobApplication> applications = jobApplicationRepository.findBySeekerId(seekerId);
 

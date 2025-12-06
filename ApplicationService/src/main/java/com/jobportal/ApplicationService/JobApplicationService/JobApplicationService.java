@@ -11,6 +11,7 @@ import com.jobportal.ApplicationService.JobApplicationRepository.OutboxEventRepo
 import com.jobportal.ApplicationService.enums.EventStatus;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class JobApplicationService {
@@ -78,7 +80,12 @@ public class JobApplicationService {
             throw new IllegalStateException("Resume url cannot be empty");
         }
 
+        boolean alreadyApplied = jobApplicationRepository
+                .existsBySeekerIdAndJobPostId(seekerId, jobId);
 
+        if (alreadyApplied) {
+            throw new IllegalStateException("You have already applied to this job.");
+        }
 
         JobApplication jobApplication = JobApplication.builder()
         .resumeUrl(jobApplicationDto.getResumeUrl())
@@ -105,19 +112,18 @@ public class JobApplicationService {
     }
 
     // 3. Fallback Method
-    public Long getSeekerIdFallback(String email, Throwable t) {
-        System.out.println("User Service is down. Cannot fetch Seeker ID for email: " + email);
+    public Long getSeekerIdFallback(String email) {
+        log.error("User Service is down. Cannot fetch Seeker ID for email: " + email);
         return null;
     }
 
     @CircuitBreaker(name = "jobServiceBreaker", fallbackMethod = "validateJobFallback")
     public void validateJobExists(Long jobId) {
-
         jobPostClient.getJobId(jobId);
     }
 
     // 3. Smart Fallback
-    public void validateJobFallback(Long jobId, Throwable t) {
+    public void validateJobFallback(Long jobId , Throwable t) {
         // If the error is actually "404 Not Found", we want to re-throw it
         // because that is a valid business scenario, not a system failure.
         if (t instanceof feign.FeignException.NotFound) {
