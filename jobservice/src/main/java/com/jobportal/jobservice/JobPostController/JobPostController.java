@@ -97,8 +97,8 @@ public class JobPostController {
     @GetMapping("/{jobId}/applications")
     public ResponseEntity<?> getJobApplications(
             @RequestHeader("X-User-Email") String email,
-            @PathVariable Long jobId ,
-            Pageable pageable) {
+            @PathVariable Long jobId
+            ) {
 
         String recruiterEmail = email;
         User recruiter = userClient.getUserIdByEmail(recruiterEmail);

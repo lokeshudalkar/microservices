@@ -1,23 +1,22 @@
 package com.jobportal.jobservice.Entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
+@Getter
+@Setter
 @AllArgsConstructor
 @Builder
 @Entity
 @Table(name = "job_post", indexes = {
-
-    @Index(name = "idx_recruiter_id", columnList = "recruiterId"),
-     @Index(name = "idx_title", columnList = "title"),
-     @Index(name = "idx_location", columnList = "location")
+        @Index(name = "idx_recruiter_id", columnList = "recruiterId"),
+        @Index(name = "idx_title", columnList = "title"),
+        @Index(name = "idx_location", columnList = "location")
 })
 public class JobPost {
 

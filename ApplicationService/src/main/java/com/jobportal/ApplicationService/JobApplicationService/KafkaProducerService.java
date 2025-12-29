@@ -25,9 +25,9 @@ public class KafkaProducerService {
         kafkaTemplate.send(JOB_APPLIED_TOPIC, String.valueOf(jobId) , payload)
                 .whenComplete((result, ex) -> {
                     if (ex == null) {
-                        log.info("Published event for Job ID: " + jobId);
+                        log.info("Published event for Job ID: {}" , jobId);
                     } else {
-                        log.error("Failed to publish event: " + ex.getMessage());
+                        log.error("Failed to publish event: {}" , ex.getMessage());
                     }
                 });
 

@@ -113,7 +113,7 @@ public class JobApplicationService {
 
     // 3. Fallback Method
     public Long getSeekerIdFallback(String email) {
-        log.error("User Service is down. Cannot fetch Seeker ID for email: " + email);
+        log.error("User Service is down. Cannot fetch Seeker ID for email: {}" , email);
         return null;
     }
 

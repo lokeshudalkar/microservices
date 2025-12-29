@@ -10,6 +10,7 @@ import com.jobportal.jobservice.feignClient.JobApplicationClient;
 import com.jobportal.jobservice.feignClient.UserClient;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class JobService  {
@@ -51,11 +53,15 @@ public class JobService  {
     @Transactional
     @CacheEvict(value = {"allJobs" , "jobsearch"} , allEntries = true)
     public JobPost updateJob(Long jobId , JobPostRequest jobPostRequest , Long recruiterId){
-        JobPost jobPost = jobPostRepository.findById(jobId)
-                .orElseThrow(() -> new RuntimeException("Job not found"));
+        JobPost jobPost = jobPostRepository.findById(jobId).orElseThrow(
+                        () -> new RuntimeException("Job not found")
+                        );
+
         if (!jobPost.getRecruiterId().equals(recruiterId)) {
+
             // If the ID from the token does not match the ID on the job post, deny access.
             throw new RuntimeException("Not authorized to update this job post.");
+
         }
 
         jobPost.setTitle(jobPostRequest.getTitle());
@@ -85,7 +91,7 @@ public class JobService  {
     }
 
     public boolean deleteJobFallback(Long jobId, Long recruiterId, Throwable t) {
-        System.out.println("Application Service is down. Cannot delete job applications. Aborting deletion. Error: " + t.getMessage());
+        log.error("Application Service is down. Cannot delete job applications. Aborting deletion. Error: {}" , t.getMessage());
         return false;
     }
 
@@ -113,7 +119,7 @@ public class JobService  {
 
     //  the fallback method
     public User getRecruiterFallback(String email, Throwable t) {
-        System.out.println("User Service is down, cannot fetch Recruiter ID: " + t.getMessage());
+        log.error("User Service is down, cannot fetch Recruiter ID: {}" , t.getMessage());
         return null;
     }
 
@@ -123,10 +129,9 @@ public class JobService  {
         return jobApplicationClient.getApplicationsForJob(jobId);
     }
 
-    public List<JobApplication> getJobApplicationsFallback(Long jobId, Throwable t) {
-        System.out.println("Application Service is down. Returning empty application list. Error: " + t.getMessage());
-        return Arrays.asList();
-
+    public List<JobApplication> getJobApplicationsFallback(Long jobId, Throwable t) {//do we need params in fall back methods
+        log.error("Application Service is down. Returning empty application list. Error: {}" , t.getMessage());
+        return List.of();
     }
 
 

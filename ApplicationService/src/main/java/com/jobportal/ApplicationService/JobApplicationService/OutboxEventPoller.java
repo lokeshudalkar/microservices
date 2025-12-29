@@ -26,7 +26,7 @@ public class OutboxEventPoller {
         List<Events> events = outboxEventRepository.findTop100ByStatus(EventStatus.PENDING);
         if(events.isEmpty()) return;
 
-        log.info("Found  PENDING events to publish.", events.size());
+        log.info("Found  PENDING events to publish. {}", events.size());
 
         for (Events event : events){
             try {
