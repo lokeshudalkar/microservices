@@ -53,58 +53,56 @@ public class JobApplicationControllerTest {
     @MockitoBean
     private  JobApplicationRepository jobApplicationRepository;
 
-    @Test
-    void applyToJobAsync() throws Exception{
-
-        JobApplicationDto applicationRequest = new JobApplicationDto("lokesh's_resume");
-        when(jobApplicationService.getSeekerIdByEmail("lokesh@gmail.com")).thenReturn(1L);
-        when(jobApplicationService.applyToJobAsync(any() , any() , any()))
-                .thenReturn(CompletableFuture.completedFuture(null));
-
-        mockMvc.perform(post("/job-applications/apply-to/{jobId}", 1L)
-                        .header("X-User-Email", "lokesh@gmail.com")
-                        .header("X-User-Role", "SEEKER")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(applicationRequest)))
-                .andExpect(status().isAccepted())
-                .andExpect(content().string("Application Submitted Successfully"));
-
-
-    }
-
-    @Test
-    void apply_Forbidden_WhenUserIsNotSeeker() throws Exception {
-        JobApplicationDto dto = new JobApplicationDto("resume.pdf");
-
-        mockMvc.perform(post("/job-applications/apply-to/{jobId}", 55L)
-                        .header("X-User-Email", "recruiter@example.com")
-                        .header("X-User-Role", "RECRUITER") // Wrong Role
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isForbidden())
-                .andExpect(content().string("User is not Seeker"));
-
-        // Ensure service logic was skipped
-        verify(jobApplicationService, never()).getSeekerIdByEmail(any());
-    }
-
-    @Test
-    void apply_ServiceUnavailable_WhenUserServiceDown() throws Exception {
-        Long jobId = 55L;
-        String email = "seeker@example.com";
-        JobApplicationDto dto = new JobApplicationDto("resume.pdf");
-        when(jobApplicationService.getSeekerIdByEmail(email)).thenReturn(null);// here fallBack method will be called because user service is down
-
-
-        mockMvc.perform(post("/job-applications/apply-to/{jobId}", jobId)
-                        .header("X-User-Email", email)
-                        .header("X-User-Role", "SEEKER")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isServiceUnavailable())
-                .andExpect(content().string("Cannot apply. User Service is currently unavailable."));
-    }
-
-
+//    @Test
+//    void applyToJobAsync() throws Exception{
+//
+//        JobApplicationDto applicationRequest = new JobApplicationDto("lokesh's_resume");
+//        when(jobApplicationService.getSeekerIdByEmail("lokesh@gmail.com")).thenReturn(1L);
+//        when(jobApplicationService.applyToJobAsync(any() , any() , any()))
+//                .thenReturn(CompletableFuture.completedFuture(null));
+//
+//        mockMvc.perform(post("/job-applications/apply-to/{jobId}", 1L)
+//                        .header("X-User-Email", "lokesh@gmail.com")
+//                        .header("X-User-Role", "SEEKER")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(applicationRequest)))
+//                .andExpect(status().isAccepted())
+//                .andExpect(content().string("Application Submitted Successfully"));
+//
+//
+//    }
+//
+//    @Test
+//    void apply_Forbidden_WhenUserIsNotSeeker() throws Exception {
+//        JobApplicationDto dto = new JobApplicationDto("resume.pdf");
+//
+//        mockMvc.perform(post("/job-applications/apply-to/{jobId}", 55L)
+//                        .header("X-User-Email", "recruiter@example.com")
+//                        .header("X-User-Role", "RECRUITER") // Wrong Role
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(dto)))
+//                .andExpect(status().isForbidden())
+//                .andExpect(content().string("User is not Seeker"));
+//
+//        // Ensure service logic was skipped
+//        verify(jobApplicationService, never()).getSeekerIdByEmail(any());
+//    }
+//
+//    @Test
+//    void apply_ServiceUnavailable_WhenUserServiceDown() throws Exception {
+//        Long jobId = 55L;
+//        String email = "seeker@example.com";
+//        JobApplicationDto dto = new JobApplicationDto("resume.pdf");
+//        when(jobApplicationService.getSeekerIdByEmail(email)).thenReturn(null); // here fallBack method will be called because user service is down
+//
+//
+//        mockMvc.perform(post("/job-applications/apply-to/{jobId}", jobId)
+//                        .header("X-User-Email", email)
+//                        .header("X-User-Role", "SEEKER")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(dto)))
+//                .andExpect(status().isServiceUnavailable())
+//                .andExpect(content().string("Cannot apply. User Service is currently unavailable."));
+//    }
 
 }

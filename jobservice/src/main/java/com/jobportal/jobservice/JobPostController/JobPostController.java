@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 
+/**
+ * The type Job post controller.
+ */
 @RestController
 @RequestMapping("/jobs")
 @RequiredArgsConstructor
@@ -28,11 +31,19 @@ public class JobPostController {
     private final UserClient userClient;
     private final JobApplicationClient jobApplicationClient;
 
+    /**
+     * Create job response entity.
+     *
+     * @param email          the email
+     * @param role           the role
+     * @param jobPostRequest the job post request
+     * @return the response entity
+     */
     @PostMapping("/post")
     public ResponseEntity<?> createJob(
             @RequestHeader("X-User-Email") String email,
             @RequestHeader("X-User-Role") String role,
-            @Valid  @RequestBody JobPostRequest jobPostRequest) {
+            @Valid @RequestBody JobPostRequest jobPostRequest) {
 
         if (!"RECRUITER".equals(role)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not a recruiter.");
@@ -51,10 +62,18 @@ public class JobPostController {
     }
 
 
+    /**
+     * Update job response entity.
+     *
+     * @param jobPostRequest the job post request
+     * @param email          the email
+     * @param jobId          the job id
+     * @return the response entity
+     */
     @PutMapping("/updatejob/{jobId}")
-    public ResponseEntity<?> updateJob(@RequestBody JobPostRequest jobPostRequest ,
-                                       @RequestHeader("X-User-Email") String email ,
-                                        @PathVariable Long jobId){
+    public ResponseEntity<?> updateJob(@RequestBody JobPostRequest jobPostRequest,
+                                       @RequestHeader("X-User-Email") String email,
+                                       @PathVariable Long jobId) {
 
         String recruiterEmail = email;
 
@@ -63,13 +82,20 @@ public class JobPostController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not a recruiter or does not exist.");
         }
 
-        JobPost jobPost = jobService.updateJob(jobId , jobPostRequest , recruiter.getId());
+        JobPost jobPost = jobService.updateJob(jobId, jobPostRequest, recruiter.getId());
         return ResponseEntity.ok(jobPost);
     }
 
+    /**
+     * Delete job response entity.
+     *
+     * @param email the email
+     * @param jobId the job id
+     * @return the response entity
+     */
     @DeleteMapping("/delete-job/{jobId}")
-    public ResponseEntity<?> deleteJob(@RequestHeader("X-User-Email") String email ,
-                                        @PathVariable Long jobId){
+    public ResponseEntity<?> deleteJob(@RequestHeader("X-User-Email") String email,
+                                       @PathVariable Long jobId) {
 
         String recruiterEmail = email;
 
@@ -77,13 +103,19 @@ public class JobPostController {
         if (recruiter == null || !"RECRUITER".equals(recruiter.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not a recruiter or does not exist.");
         }
-        jobService.deleteJob(jobId , recruiter.getId());
+        jobService.deleteJob(jobId, recruiter.getId());
         return ResponseEntity.ok().body("Job is successfully deleted");
 
     }
 
+    /**
+     * Gets all job posted by recruiter.
+     *
+     * @param email the email
+     * @return the all job posted by recruiter
+     */
     @GetMapping("/my-jobs")
-    public ResponseEntity<?> getAllJobPostedByRecruiter(@RequestHeader("X-User-Email") String email ){
+    public ResponseEntity<?> getAllJobPostedByRecruiter(@RequestHeader("X-User-Email") String email) {
 
         String recruiterEmail = email;
 
@@ -94,11 +126,18 @@ public class JobPostController {
         return ResponseEntity.ok(jobPostRepository.findByRecruiterId(recruiter.getId()));
     }
 
+    /**
+     * Gets job applications.
+     *
+     * @param email the email
+     * @param jobId the job id
+     * @return the job applications
+     */
     @GetMapping("/{jobId}/applications")
     public ResponseEntity<?> getJobApplications(
             @RequestHeader("X-User-Email") String email,
             @PathVariable Long jobId
-            ) {
+    ) {
 
         String recruiterEmail = email;
         User recruiter = userClient.getUserIdByEmail(recruiterEmail);

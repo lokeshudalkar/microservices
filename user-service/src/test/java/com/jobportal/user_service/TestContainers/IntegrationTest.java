@@ -8,6 +8,9 @@ import com.jobportal.user_service.Entity.User;
 import com.jobportal.user_service.Repositories.UserRepository;
 import com.jobportal.user_service.UserDTOs.AuthRequest;
 import com.jobportal.user_service.UserDTOs.UserRequest;
+import com.jobportal.user_service.Utils.JwtUtil;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import jakarta.ws.rs.core.MediaType;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +22,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import java.util.Optional;
-
+import javax.crypto.SecretKey;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -40,6 +43,8 @@ class IntegrationTest extends AbstractIntegrationTest{
     private ObjectMapper objectMapper;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @BeforeEach
      void setUp(){
@@ -67,8 +72,9 @@ class IntegrationTest extends AbstractIntegrationTest{
 
     }
 
+    @SneakyThrows
     @Test
-    void shouldLoginUser_AndReturnToken() throws Exception {
+    void shouldLoginUser_AndReturnToken() {
 
         UserRequest registerRequest = new UserRequest("Lucky", "login@test.com", "password123", Role.RECRUITER);
 
@@ -99,8 +105,9 @@ class IntegrationTest extends AbstractIntegrationTest{
         System.out.println("==================================\n");
     }
 
+    @SneakyThrows
     @Test
-    void shouldFailLogin_WhenPasswordIsWrong() throws Exception {
+    void shouldFailLogin_WhenPasswordIsWrong()  {
         // Arrange
         UserRequest registerRequest = new UserRequest("Lucky", "wrongpass@test.com", "password123", Role.SEEKER);
 
@@ -117,5 +124,37 @@ class IntegrationTest extends AbstractIntegrationTest{
                         .content(objectMapper.writeValueAsString(badLogin)))
                 .andExpect(status().isUnauthorized()); // Expect 401
     }
+
+    @Test
+    void login_ShouldReturnTokenWithCorrectClaims() throws Exception {
+        // Register a user
+        UserRequest registerRequest = new UserRequest("Test User", "verify@test.com", "pass123", Role.RECRUITER);
+        mockMvc.perform(post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(registerRequest)));
+
+        //Login to get token
+        AuthRequest loginRequest = new AuthRequest("verify@test.com", "pass123");
+        String response = mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andReturn().getResponse().getContentAsString();
+
+        String token = objectMapper.readTree(response).get("token").asText();
+
+        // 3. Assert: Decode and Verify Claims using JwtUtil
+        assertEquals("verify@test.com", jwtUtil.extractUsername(token));
+
+        // Note: Since extractAllClaims is private in JwtUtil,
+        // we can use the jjwt library directly in the test to verify the role claim.
+        SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode("w4XG2q1pD5Yg+I3VvVQ0bV+z8bN+9M2X9y3wS9s8xE0="));
+        io.jsonwebtoken.Claims claims = io.jsonwebtoken.Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        assertEquals("RECRUITER", claims.get("role"));
+    }
+
 
 }

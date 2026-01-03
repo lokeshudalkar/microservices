@@ -17,6 +17,12 @@ public class GatewayConfig {
 
     private final AuthenticationFilter authenticationFilter;
 
+    /**
+     * Custom route locator route locator.
+     *
+     * @param builder the builder
+     * @return the route locator
+     */
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()

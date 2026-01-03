@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
+/**
+ * The type User controller.
+ */
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -18,11 +21,17 @@ public class UserController {
 
     private final UserRepository userRepository;
 
+    /**
+     * Gets recruiter id.
+     *
+     * @param id the id
+     * @return the recruiter id
+     */
     @GetMapping("/{recruiter-id}/recruiter-id")
     public Long getRecruiterId(@PathVariable("recruiter-id") Long id) {
         // You can also check if this user is actually a recruiter before returning
         User user = userRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (user.getRole() == Role.RECRUITER) {
             return user.getId();
@@ -32,20 +41,32 @@ public class UserController {
 
     // This Method is for application Service
 
+    /**
+     * Gets seeker id.
+     *
+     * @param email the email
+     * @return the seeker id
+     */
     @GetMapping("/by_email/{email}") //  Only returns the Long ID (Used by Application Service)
     public Long getSeekerId(@PathVariable String email) {
-       User user = userRepository.findByEmail(email).orElseThrow(
-               () -> new RuntimeException("User not found with this email")
-       );
-       return user.getId();
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new RuntimeException("User not found with this email")
+        );
+        return user.getId();
     }
 
-    //This is for Job Service
+    /**
+     * Gets user id by email.
+     *
+     * @param email the email
+     * @return the user id by email
+     */
+//This is for Job Service
     @GetMapping("/by-email/{email}")
     public User getUserIdByEmail(@PathVariable String email) {
-       return userRepository.findByEmail(email).orElseThrow(
-               () -> new RuntimeException("User not found with this email")
-       );
+        return userRepository.findByEmail(email).orElseThrow(
+                () -> new RuntimeException("User not found with this email")
+        );
 
     }
 }

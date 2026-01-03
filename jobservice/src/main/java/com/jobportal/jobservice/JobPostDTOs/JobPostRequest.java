@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Min;
 
 
+/**
+ * The type Job post request.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

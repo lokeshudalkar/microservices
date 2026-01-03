@@ -3,18 +3,18 @@ package com.jobportal.ApplicationService.JobApplicationController;
 import com.jobportal.ApplicationService.Entity.JobApplication;
 import com.jobportal.ApplicationService.FeignClient.JobPostClient;
 import com.jobportal.ApplicationService.FeignClient.UserClient;
-import com.jobportal.ApplicationService.JobApplicationDto.JobApplicationDto;
 import com.jobportal.ApplicationService.JobApplicationRepository.JobApplicationRepository;
 import com.jobportal.ApplicationService.JobApplicationService.JobApplicationService;
 
 
 import com.jobportal.ApplicationService.JobApplicationService.KafkaProducerService;
-import feign.FeignException;
-import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -34,15 +34,21 @@ public class JobApplicationController {
     private final JobApplicationRepository jobApplicationRepository;
 
 
-    @PostMapping("/apply-to/{jobId}")
-    public ResponseEntity<?> apply(@Valid  @RequestHeader("X-User-Email") String email,
-            @RequestHeader("X-User-Role") String role,
-            @RequestBody JobApplicationDto jobApplicationDto ,
-               @PathVariable Long jobId){
+    @PostMapping(value = "/apply-to/{jobId}" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> apply(@RequestHeader("X-User-Email") String email,
+                                   @RequestHeader("X-User-Role") String role,
+                                   @RequestPart("resume")  MultipartFile resume,
+                                   @PathVariable Long jobId){
 
         if(!"SEEKER".equals(role)){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not Seeker");
         }
+
+        //validate file type
+        if (!"application/pdf".equals(resume.getContentType())) {
+            return ResponseEntity.badRequest().body("Only PDF files are allowed");
+        }
+
         //circuit breaker method
         Long seekerId = jobApplicationService.getSeekerIdByEmail(email);
 
@@ -66,7 +72,7 @@ public class JobApplicationController {
         }
         jobApplicationService.validateApplication(seekerId, jobId);
         jobApplicationService.applyToJobAsync(seekerId ,
-                jobApplicationDto , jobId);
+                resume , jobId);
 
 //        jobPostClient.incrementApplicationCount(jobId);
 //        kafkaProducerService.sendApplicationSubmittedEvent(jobId);

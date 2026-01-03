@@ -22,7 +22,7 @@ public abstract class AbstractIntegrationTest {
         registry.add("spring.datasource.username", mysql::getUsername);
         registry.add("spring.datasource.password", mysql::getPassword);
         registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop"); // Start fresh schema
-        registry.add("app.jwt-secret" , () -> "TaK+HaV^uvCHEFsEVfypW7g9^k*Z8$V12ABCDEFGHadditionalchars1234567890");
+        registry.add("app.jwt-secret" , () -> "w4XG2q1pD5Yg+I3VvVQ0bV+z8bN+9M2X9y3wS9s8xE0=");
     }
 
 }

@@ -6,6 +6,9 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
+/**
+ * The type Job post.
+ */
 @Data
 @NoArgsConstructor
 @Getter

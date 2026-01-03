@@ -3,6 +3,9 @@ package com.jobportal.jobservice.JobPostDTOs;
 import lombok.*;
 import java.time.LocalDateTime;
 
+/**
+ * The type Job application.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

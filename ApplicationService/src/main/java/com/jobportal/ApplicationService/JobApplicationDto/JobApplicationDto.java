@@ -3,6 +3,7 @@ package com.jobportal.ApplicationService.JobApplicationDto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @AllArgsConstructor
@@ -11,5 +12,5 @@ import lombok.*;
 public class JobApplicationDto{
 
     @NotBlank(message = "Resume URL is required for applying to jobs")
-    private String resumeUrl;
+    private MultipartFile resumeUrl;
 }

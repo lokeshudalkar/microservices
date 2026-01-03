@@ -8,6 +8,9 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
+/**
+ * The type JobService application.
+ */
 @SpringBootApplication
 @EnableFeignClients
 @EnableDiscoveryClient
@@ -15,6 +18,11 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableCaching
 public class JobserviceApplication {
 
+	/**
+	 * The entry point of application.
+	 *
+	 * @param args the input arguments
+	 */
 	public static void main(String[] args) {
 		SpringApplication.run(JobserviceApplication.class, args);
 		System.out.println("Job-Service has Started");

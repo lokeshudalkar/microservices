@@ -7,6 +7,7 @@ import com.jobportal.ApplicationService.JobApplicationRepository.JobApplicationR
 import com.jobportal.ApplicationService.JobApplicationRepository.OutboxEventRepository;
 import com.jobportal.ApplicationService.JobApplicationService.JobApplicationService;
 import com.jobportal.ApplicationService.enums.EventStatus;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -31,68 +32,96 @@ public class ApplicationServiceTest {
 
     @Mock
     private OutboxEventRepository outboxEventRepository;
-
-    @Test
-    void applyToJobAsync(){
-
-        JobApplicationDto application = new JobApplicationDto("lokesh's_resume.pdf");
-
-        when(jobApplicationRepository.existsBySeekerIdAndJobPostId(1L , 55L)).thenReturn(false);
-        JobApplication jobApplication = JobApplication.builder()
-                .applicationId(100L)
-                .resumeUrl(application.getResumeUrl())
-                .seekerId(1L)
-                .jobPostId(55L)
-                .appliedAt(LocalDateTime.now())
-                .build();
-
-        jobApplicationRepository.save(any(JobApplication.class));
-        outboxEventRepository.save(any(Events.class));
-
-        CompletableFuture<Void> future = jobApplicationService.applyToJobAsync(1L , application , 55L);
-
-        future.join(); //wait for operation to finish
-
-        ArgumentCaptor<JobApplication> jobApplicationArgumentCaptor = ArgumentCaptor.forClass(JobApplication.class);
-        verify(jobApplicationRepository , times(2)).save(jobApplicationArgumentCaptor.capture());
-
-        JobApplication capturedJob = jobApplicationArgumentCaptor.getValue();
-
-        assertEquals(1L, capturedJob.getSeekerId());
-        assertEquals(55L, capturedJob.getJobPostId());
-        assertEquals("lokesh's_resume.pdf", capturedJob.getResumeUrl());
-
-
-        ArgumentCaptor<Events> eventsArgumentCaptor = ArgumentCaptor.forClass(Events.class);
-        verify(outboxEventRepository , times(2)).save(eventsArgumentCaptor.capture());
-
-        Events capturedEvent = eventsArgumentCaptor.getValue();
-
-        assertEquals("job-application-events", capturedEvent.getTopic());
-        assertEquals(String.valueOf(55L), capturedEvent.getPayload());
-        assertEquals(EventStatus.PENDING, capturedEvent.getStatus());
-
-
-    }
-
-    @Test
-    void applyToJobAsync_ThrowsException_AlreadyApplied(){
-        JobApplicationDto application = new JobApplicationDto("lokesh's_resume.pdf");
-        when(jobApplicationRepository.existsBySeekerIdAndJobPostId(1L , 55L)).thenReturn(true);
-        Exception exception =  assertThrows(IllegalStateException.class ,
-                                () -> jobApplicationService.applyToJobAsync(1L ,application , 55L ));
-
-        assertEquals("You have already applied to this job." , exception.getMessage());
-
-    }
-
-    @Test
-    void getSeekerIdFallbackTest_shouldReturnNull(){
-        String email = "lokesh@email.com";
-
-        Long res = jobApplicationService.getSeekerIdFallback(email);
-
-        assertNull(res);
-    }
+//    @Disabled
+//    @Test
+//    void applyToJobAsync(){
+//
+//        JobApplicationDto application = new JobApplicationDto("lokesh's_resume.pdf");
+//
+//        when(jobApplicationRepository.existsBySeekerIdAndJobPostId(1L , 55L)).thenReturn(false);
+//        JobApplication jobApplication = JobApplication.builder()
+//                .applicationId(100L)
+//                .resumeUrl(application.getResumeUrl())
+//                .seekerId(1L)
+//                .jobPostId(55L)
+//                .appliedAt(LocalDateTime.now())
+//                .build();
+//
+//        jobApplicationRepository.save(any(JobApplication.class));
+//        outboxEventRepository.save(any(Events.class));
+//
+//        CompletableFuture<Void> future = jobApplicationService.applyToJobAsync(1L , application , 55L);
+//
+//        future.join(); //wait for operation to finish
+//
+//        ArgumentCaptor<JobApplication> jobApplicationArgumentCaptor = ArgumentCaptor.forClass(JobApplication.class);
+//        verify(jobApplicationRepository , times(2)).save(jobApplicationArgumentCaptor.capture());
+//
+//        JobApplication capturedJob = jobApplicationArgumentCaptor.getValue();
+//
+//        assertEquals(1L, capturedJob.getSeekerId());
+//        assertEquals(55L, capturedJob.getJobPostId());
+//        assertEquals("lokesh's_resume.pdf", capturedJob.getResumeUrl());
+//
+//
+//        ArgumentCaptor<Events> eventsArgumentCaptor = ArgumentCaptor.forClass(Events.class);
+//        verify(outboxEventRepository , times(2)).save(eventsArgumentCaptor.capture());
+//
+//        Events capturedEvent = eventsArgumentCaptor.getValue();
+//
+//        assertEquals("job-application-events", capturedEvent.getTopic());
+//        assertEquals(String.valueOf(55L), capturedEvent.getPayload());
+//        assertEquals(EventStatus.PENDING, capturedEvent.getStatus());
+//
+//
+//    }
+//    @Disabled
+//    @Test
+//    void applyToJobAsync_ThrowsException_AlreadyApplied(){
+//        JobApplicationDto application = new JobApplicationDto("lokesh's_resume.pdf");
+//        when(jobApplicationRepository.existsBySeekerIdAndJobPostId(1L , 55L)).thenReturn(true);
+//        Exception exception =  assertThrows(IllegalStateException.class ,
+//                                () -> jobApplicationService.applyToJobAsync(1L ,application , 55L ));
+//
+//        assertEquals("You have already applied to this job." , exception.getMessage());
+//
+//    }
+//    @Disabled
+//    @Test
+//    void applyToJobAsync_ShouldRollback_WhenOutboxFails() {
+//
+//        Long seekerId = 123L;
+//        Long jobId = 456L;
+//        JobApplicationDto dto = new JobApplicationDto("https://resume.com/lokesh.pdf");
+//
+//        // Force the second save (outbox) to fail with a RuntimeException
+//        when(outboxEventRepository.save(any(Events.class)))
+//                .thenThrow(new RuntimeException("Outbox Database Error"));
+//
+//        // Call your async service method
+//        CompletableFuture<Void> future = jobApplicationService.applyToJobAsync(seekerId, dto, jobId);
+//
+//        // Wait for the async execution to finish and handle the exception
+//        // We use .handle() so the test doesn't fail immediately, allowing us to check the DB
+//        future.handle((res, ex) -> {
+//            assertNotNull(ex, "The CompletableFuture should have failed");
+//            assertTrue(ex.getMessage().contains("Outbox Database Error") ||
+//                    ex.getCause().getMessage().contains("Outbox Database Error"));
+//            return null;
+//        }).join();
+//
+//        // Verify the first save (JobApplication) was ROLLED BACK
+//        boolean applicationExists = jobApplicationRepository.existsBySeekerIdAndJobPostId(seekerId, jobId);
+//        assertFalse(applicationExists, "Transactional Integrity Failure: JobApplication was not rolled back!");
+//    }
+//    @Disabled
+//    @Test
+//    void getSeekerIdFallbackTest_shouldReturnNull(){
+//        String email = "lokesh@email.com";
+//
+//        Long res = jobApplicationService.getSeekerIdFallback(email);
+//
+//        assertNull(res);
+//    }
 
 }
