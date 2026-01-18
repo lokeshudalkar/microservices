@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+/**
+ * The type Kafka consumer service.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -21,8 +24,13 @@ public class KafkaConsumerService {
     private final ProcessedEventRepository processedEventRepository;
     private final ObjectMapper objectMapper;
 
-    @KafkaListener(topics = "${app.kafka.topics.job-application}" ,
-                    groupId = "${app.kafka.group-id}")
+    /**
+     * Handle application submitted event.
+     *
+     * @param messagePayload the message payload
+     */
+    @KafkaListener(topics = "${app.kafka.topics.job-application}",
+            groupId = "${app.kafka.group-id}")
     @Transactional // <--- CRITICAL: Database changes roll back if anything fails
     public void handleApplicationSubmittedEvent(String messagePayload) {
         try {

@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 
+/**
+ * The type Register login controller.
+ */
 @Slf4j
 @RestController
 @RequestMapping("/auth")
@@ -38,12 +41,25 @@ public class RegisterLoginController {
 
     private final AuthenticationManager authenticationManager;
 
+    /**
+     * Create user response entity.
+     *
+     * @param userRequest the user request
+     * @return the response entity
+     */
     @PostMapping("/register")
-    public ResponseEntity<User> createUser(@Valid @RequestBody UserRequest userRequest){
+    public ResponseEntity<User> createUser(@Valid @RequestBody UserRequest userRequest) {
         return new ResponseEntity<>(userService.registerUser(userRequest), HttpStatus.CREATED);
     }
+
+    /**
+     * Login user response entity.
+     *
+     * @param authRequest the auth request
+     * @return the response entity
+     */
     @PostMapping("/login")
-    public ResponseEntity<Map<String , String>> loginUser(@Valid @RequestBody AuthRequest authRequest){
+    public ResponseEntity<Map<String, String>> loginUser(@Valid @RequestBody AuthRequest authRequest) {
 
         try {
             Authentication authenticate = authenticationManager.authenticate(
@@ -52,9 +68,9 @@ public class RegisterLoginController {
 
             if (authenticate.isAuthenticated()) {
                 User user = userRepository.findByEmail(authRequest.getEmail())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+                        .orElseThrow(() -> new RuntimeException("User not found"));
 
-                String jwt = jwtUtil.generateToken(authRequest.getEmail() , String.valueOf(user.getRole()));
+                String jwt = jwtUtil.generateToken(authRequest.getEmail(), String.valueOf(user.getRole()));
 
                 return ResponseEntity.ok(Map.of("token", jwt));
             } else {

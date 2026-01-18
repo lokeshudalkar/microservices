@@ -13,6 +13,9 @@ import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * The type Public controller.
+ */
 @RestController
 @RequestMapping("/public")
 @RequiredArgsConstructor
@@ -22,6 +25,12 @@ public class PublicController {
     private final JobPostRepository jobPostRepository;
     private final JobService jobService;
 
+    /**
+     * Gets all job post.
+     *
+     * @param pageable the pageable
+     * @return the all job post
+     */
     @GetMapping
     @Cacheable(value = "allJobs", key = "#pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort")
     public PageWrapper<JobPost> getAllJobPost(Pageable pageable) {
@@ -29,6 +38,13 @@ public class PublicController {
         return new PageWrapper<>(page);
     }
 
+    /**
+     * Search jobs by keyword page wrapper.
+     *
+     * @param keyword  the keyword
+     * @param pageable the pageable
+     * @return the page wrapper
+     */
     @GetMapping("/search")
     @Cacheable(value = "jobsearch", key = "(#keyword != null ? #keyword : 'all') + '-' + #pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort")
     public PageWrapper<JobPost> searchJobsByKeyword(
@@ -47,6 +63,12 @@ public class PublicController {
         return new PageWrapper<>(jobs);
     }
 
+    /**
+     * Gets job id.
+     *
+     * @param jobId the job id
+     * @return the job id
+     */
     @GetMapping("/{job-id}/job-id")
     public Long getJobId(@PathVariable("job-id") Long jobId) {
         JobPost jobPost = jobPostRepository.findById(jobId).orElseThrow(
@@ -55,6 +77,12 @@ public class PublicController {
         return jobPost.getId();
     }
 
+    /**
+     * Increment job count int.
+     *
+     * @param jobId the job id
+     * @return the int
+     */
     @PutMapping("/internal/job/{jobId}/increment-count")
     public int incrementJobCount(@PathVariable Long jobId) {
         jobService.incrementApplicationCount(jobId);

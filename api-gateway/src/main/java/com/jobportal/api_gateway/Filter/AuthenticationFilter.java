@@ -13,12 +13,20 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+/**
+ * The type Authentication filter.
+ */
 @Component
 //@RequiredArgsConstructor
-public  class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
-//AuthenticationFilter.Config
+public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
+    //AuthenticationFilter.Config
     private final JwtUtil jwtUtil;
 
+    /**
+     * Instantiates a new Authentication filter.
+     *
+     * @param jwtUtil the jwt util
+     */
     public AuthenticationFilter(JwtUtil jwtUtil) {
         super(Config.class);
         this.jwtUtil = jwtUtil;
@@ -34,7 +42,7 @@ public  class AuthenticationFilter extends AbstractGatewayFilterFactory<Authenti
                 return onError(exchange, "Authorization header is missing", HttpStatus.UNAUTHORIZED);
             }
 
-            String authHeader = request.getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
+            String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 return onError(exchange, "Authorization header is invalid", HttpStatus.UNAUTHORIZED);
             }
@@ -52,7 +60,7 @@ public  class AuthenticationFilter extends AbstractGatewayFilterFactory<Authenti
                 // Add user info to request headers for downstream services
                 ServerHttpRequest modifiedRequest = request.mutate()
                         .header("X-User-Email", username)
-                        .header("X-User-Role" , role)
+                        .header("X-User-Role", role)
                         .build();
 
                 return chain.filter(exchange.mutate().request(modifiedRequest).build());
@@ -69,7 +77,10 @@ public  class AuthenticationFilter extends AbstractGatewayFilterFactory<Authenti
         return response.setComplete();
     }
 
-  
+
+    /**
+     * The type Config.
+     */
     public static class Config {
         // Configuration properties if needed
     }

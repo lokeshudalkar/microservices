@@ -20,10 +20,19 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 
+/**
+ * The type Cache config.
+ */
 @Configuration
 @EnableCaching
 public class CacheConfig {
 
+    /**
+     * Cache manager redis cache manager.
+     *
+     * @param redisConnectionFactory the redis connection factory
+     * @return the redis cache manager
+     */
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
         ObjectMapper objectMapper = new ObjectMapper();

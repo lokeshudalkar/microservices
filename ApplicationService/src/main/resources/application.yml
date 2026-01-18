@@ -5,6 +5,11 @@ spring :
   application :
     name : application-service
 
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 2MB
+
   jackson:
     visibility:
       field: any
@@ -24,13 +29,16 @@ spring :
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
     open-in-view: false
-
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
   threads:
     virtual:
       enabled: true

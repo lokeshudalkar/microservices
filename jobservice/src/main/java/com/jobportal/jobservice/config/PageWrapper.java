@@ -8,13 +8,20 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * The type Page wrapper.
+ *
+ * @param <T> the type parameter
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PageWrapper<T> implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private List<T> content;
@@ -29,6 +36,11 @@ public class PageWrapper<T> implements Serializable {
     private String sortDirection;
     private String sortProperty;
 
+    /**
+     * Instantiates a new Page wrapper.
+     *
+     * @param page the page
+     */
     public PageWrapper(Page<T> page) {
         this.content = page.getContent();
         this.number = page.getNumber();
@@ -48,6 +60,11 @@ public class PageWrapper<T> implements Serializable {
         }
     }
 
+    /**
+     * To page.
+     *
+     * @return the page
+     */
     public Page<T> toPage() {
         Sort sort = Sort.unsorted();
         if (sortProperty != null && sortDirection != null) {

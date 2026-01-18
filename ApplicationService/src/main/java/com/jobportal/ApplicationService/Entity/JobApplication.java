@@ -1,11 +1,21 @@
 package com.jobportal.ApplicationService.Entity;
 
-import jakarta.persistence.*;
-import lombok.*;
-
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * The type Job application.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,9 +23,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "job_applications", indexes = {
 
-    @Index(name = "idx_seeker_id", columnList = "seekerId"),
+        @Index(name = "idx_seeker_id", columnList = "seekerId"),
 
-    @Index(name = "idx_jobpost_id", columnList = "jobPostId")
+        @Index(name = "idx_jobpost_id", columnList = "jobPostId")
 })
 public class JobApplication {
     @Id
