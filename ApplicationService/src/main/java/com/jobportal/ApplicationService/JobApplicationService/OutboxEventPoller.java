@@ -10,6 +10,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * The type Outbox event poller.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -19,18 +22,21 @@ public class OutboxEventPoller {
 
     private final KafkaProducerService kafkaProducerService;
 
+    /**
+     * Poll and publish events.
+     */
     @Scheduled(fixedDelay = 5000) // 5 seconds
-    public void pollAndPublishEvents(){
+    public void pollAndPublishEvents() {
         log.info("Polling for PENDING outbox events...");
 
         List<Events> events = outboxEventRepository.findTop100ByStatus(EventStatus.PENDING);
-        if(events.isEmpty()) return;
+        if (events.isEmpty()) return;
 
         log.info("Found  PENDING events to publish. {}", events.size());
 
-        for (Events event : events){
+        for (Events event : events) {
             try {
-                kafkaProducerService.sendApplicationSubmittedEvent(event.getId(),  Long.valueOf(event.getPayload()));
+                kafkaProducerService.sendApplicationSubmittedEvent(event.getId(), Long.valueOf(event.getPayload()));
 
                 event.setStatus(EventStatus.SENT);
                 outboxEventRepository.save(event);

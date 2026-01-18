@@ -11,9 +11,10 @@ services:
       - "3307:3306"
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: jobportal
     volumes:
       - mysql-data:/var/lib/mysql
-      - ./mysql-init:/docker-entrypoint-initdb.d
+
     networks:
       - jobportal-net
 
@@ -139,6 +140,8 @@ services:
   # --------------------------
   application-service:
     build: ./ApplicationService
+    volumes:
+      - ./ApplicationService/uploads:/app/uploads
     ports:
       - "${APPLICATION_SERVICE_PORT}:${APPLICATION_SERVICE_PORT}"
     environment:

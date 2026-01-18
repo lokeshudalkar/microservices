@@ -12,6 +12,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The type Jwt util.
+ */
 @Service
 public class JwtUtil {
 
@@ -23,11 +26,23 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
+    /**
+     * Extract username string.
+     *
+     * @param token the token
+     * @return the string
+     */
     public String extractUsername(String token) {
         Claims claims = extractAllClaims(token);
         return claims.getSubject();
     }
 
+    /**
+     * Extract expiration date.
+     *
+     * @param token the token
+     * @return the date
+     */
     public Date extractExpiration(String token) {
         return extractAllClaims(token).getExpiration();
     }
@@ -44,6 +59,13 @@ public class JwtUtil {
         return extractExpiration(token).before(new Date());
     }
 
+    /**
+     * Generate token string.
+     *
+     * @param username the username
+     * @param role     the role
+     * @return the string
+     */
     public String generateToken(String username, String role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role);
@@ -60,6 +82,12 @@ public class JwtUtil {
                 .compact();
     }
 
+    /**
+     * Validate token boolean.
+     *
+     * @param token the token
+     * @return the boolean
+     */
     public boolean validateToken(String token) {
         try {
             return !isTokenExpired(token);
