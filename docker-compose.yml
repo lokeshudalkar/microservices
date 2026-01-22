@@ -5,7 +5,7 @@ services:
   # MySQL
   # --------------------------
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.4
+    image: elasticsearch:8.11.1
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
@@ -15,7 +15,7 @@ services:
       - jobportal-net
 
   logstash:
-    image: docker.elastic.co/logstash/logstash:9.2.4
+    image: logstash:8.11.1
     volumes:
       - ./logstash/pipeline:/usr/share/logstash/pipeline
     ports:
@@ -26,7 +26,7 @@ services:
       - elasticsearch
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:9.2.4
+    image: kibana:8.11.1
     ports:
       - "5601:5601"
     networks:
@@ -130,6 +130,7 @@ services:
       - mysql
       - discovery-server
       - zipkin
+      - logstash
     networks:
       - jobportal-net
 
@@ -160,6 +161,7 @@ services:
       - kafka
       - discovery-server
       - zipkin
+      - logstash
     networks:
       - jobportal-net
 
@@ -187,6 +189,7 @@ services:
       - kafka
       - discovery-server
       - zipkin
+      - logstash
     networks:
       - jobportal-net
 
@@ -210,6 +213,7 @@ services:
       - jobservice
       - application-service
       - zipkin
+      - logstash
     networks:
       - jobportal-net
 
