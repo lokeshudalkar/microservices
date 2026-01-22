@@ -8,15 +8,16 @@ import com.jobportal.ApplicationService.FeignClient.UserClient;
 import com.jobportal.ApplicationService.JobApplicationRepository.JobApplicationRepository;
 import com.jobportal.ApplicationService.JobApplicationRepository.OutboxEventRepository;
 import com.jobportal.ApplicationService.enums.EventStatus;
+import feign.FeignException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * The type Job application service.
@@ -33,9 +34,9 @@ public class JobApplicationService {
     private final FileStorageService fileStorageService;
 
 
+
     /**
      * Validate application.
-     *
      * @param seekerId the seeker id
      * @param jobId    the job id
      */
@@ -72,59 +73,58 @@ public class JobApplicationService {
 //        outboxEventRepository.save(events);
 //
 //    }
-    public void validateApplication(Long seekerId, Long jobId) {
-        boolean alreadyApplied = jobApplicationRepository.existsBySeekerIdAndJobPostId(seekerId, jobId);
-        if (alreadyApplied) {
-            throw new IllegalStateException("You have already applied to this job.");
-        }
-    }
+
 
     /**
      * Apply to job async completable future.
-     *
-     * @param seekerId the seeker id
      * @param resume   the resume
      * @param jobId    the job id
-     * @return the completable future
      */
-    @Async("virtualThreadExecutor")
+
     @Transactional
-    public CompletableFuture<Void> applyToJobAsync(Long seekerId, String resume, Long jobId) {
-        log.info("Starting async job application for seeker: {} and job: {}", seekerId, jobId);
-        //check if link is empty or not
-        if (resume.isEmpty() || resume == null) {
-            throw new IllegalStateException("Resume file cannot be empty");
-        }
+    public void applyToJob(MultipartFile resume, Long jobId, String email) {
 
-        boolean alreadyApplied = jobApplicationRepository
-                .existsBySeekerIdAndJobPostId(seekerId, jobId);
-
-        if (alreadyApplied) {
-            throw new IllegalStateException("You have already applied to this job.");
+        validateJobExists(jobId);
+        Long seekerId = getSeekerIdByEmail(email);
+        if(jobApplicationRepository.existsBySeekerIdAndJobPostId(seekerId, jobId)) {
+            throw  new RuntimeException("You already applied to this job");
         }
-        try {
-            JobApplication jobApplication = JobApplication.builder()
-                    .resumeUrl(resume)
-                    .appliedAt(LocalDateTime.now())
-                    .jobPostId(jobId)
-                    .seekerId(seekerId)
-                    .build();
-            jobApplicationRepository.save(jobApplication);
+        JobApplication jobApplication = JobApplication.builder()
 
-            Events events = Events.builder()
-                    .topic("job-application-events")
-                    .messageKey(String.valueOf(jobId))
-                    .payload(String.valueOf(jobId))
-                    .status(EventStatus.PENDING)
-                    .createdAt(LocalDateTime.now())
-                    .build();
-            outboxEventRepository.save(events);
-        } catch (RuntimeException e) {
-            log.error("CRITICAL: Transaction rolling back because file save failed: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to store resume file", e);
-        }
-        return CompletableFuture.completedFuture(null);
+                .appliedAt(LocalDateTime.now())
+                .jobPostId(jobId)
+                .seekerId(seekerId)
+                .build();
+        jobApplicationRepository.save(jobApplication);
+        uploadResumeAsync(resume, jobApplication.getApplicationId());
+        publishEventAsync(jobId);
+
     }
+
+
+    @Transactional
+    public void uploadResumeAsync(MultipartFile resume, Long applicationId) {
+        try {
+            String path = fileStorageService.saveFile(resume);
+            jobApplicationRepository.updateResume(applicationId, path);
+        } catch (Exception e) {
+            throw new RuntimeException("FILE_UPLOAD_FAILED");
+        }
+    }
+
+
+    public void publishEventAsync(Long jobId) {
+        Events events = Events.builder()
+                .topic("job-application-events")
+                .messageKey(String.valueOf(jobId))
+                .payload(String.valueOf(jobId))
+                .status(EventStatus.PENDING)
+                .createdAt(LocalDateTime.now())
+                .build();
+        outboxEventRepository.save(events);
+    }
+
+
 
     /**
      * Gets seeker id by email.
@@ -146,8 +146,10 @@ public class JobApplicationService {
      */
 // 3. Fallback Method
     public Long getSeekerIdFallback(String email, Throwable t) {
-        log.error("User Service is down. Cannot fetch Seeker ID for email: {}", email);
-        return null;
+        if (t instanceof FeignException.NotFound) {
+            throw new RuntimeException("USER_NOT_FOUND");
+        }
+        throw new RuntimeException("USER_SERVICE_DOWN", t);
     }
 
     /**
@@ -158,6 +160,9 @@ public class JobApplicationService {
     @CircuitBreaker(name = "jobServiceBreaker", fallbackMethod = "validateJobFallback")
     public void validateJobExists(Long jobId) {
         jobPostClient.getJobId(jobId);
+        //If Job exists then it does nothing
+        //if job do not exist then is throws exception
+        //That exception is thrown in fallBack Method
     }
 
     /**

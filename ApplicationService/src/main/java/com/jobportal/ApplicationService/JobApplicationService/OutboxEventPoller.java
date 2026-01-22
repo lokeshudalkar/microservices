@@ -5,6 +5,7 @@ import com.jobportal.ApplicationService.JobApplicationRepository.OutboxEventRepo
 import com.jobportal.ApplicationService.enums.EventStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +27,7 @@ public class OutboxEventPoller {
      * Poll and publish events.
      */
     @Scheduled(fixedDelay = 5000) // 5 seconds
+    @Async("virtualThreadExecutor")
     public void pollAndPublishEvents() {
         log.info("Polling for PENDING outbox events...");
 

@@ -39,6 +39,7 @@
         <testcontainers.version>1.19.7</testcontainers.version>
         <spring-dotenv.version>4.0.0</spring-dotenv.version>
         <flyway.version>10.15.2</flyway.version>
+        <logstash.version>7.4</logstash.version>
     </properties>
 
     <!--  Dependency Management -->
@@ -110,6 +111,12 @@
                 <groupId>me.paulschwarz</groupId>
                 <artifactId>spring-dotenv</artifactId>
                 <version>${spring-dotenv.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.logstash.logback</groupId>
+                <artifactId>logstash-logback-encoder</artifactId>
+                <version>${logstash.version}</version>
             </dependency>
 
         </dependencies>

@@ -7,19 +7,26 @@ import com.jobportal.ApplicationService.FeignClient.UserClient;
 import com.jobportal.ApplicationService.JobApplicationController.JobApplicationController;
 import com.jobportal.ApplicationService.JobApplicationDto.JobApplicationDto;
 import com.jobportal.ApplicationService.JobApplicationRepository.JobApplicationRepository;
+import com.jobportal.ApplicationService.JobApplicationService.FileStorageService;
 import com.jobportal.ApplicationService.JobApplicationService.JobApplicationService;
 import com.jobportal.ApplicationService.JobApplicationService.KafkaProducerService;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -39,38 +46,76 @@ public class JobApplicationControllerTest {
     private ObjectMapper objectMapper;
 
     @MockitoBean
-    private   JobApplicationService jobApplicationService;
+    private JobApplicationService jobApplicationService;
 
     @MockitoBean
-    private   UserClient userClient;
+    private UserClient userClient;
 
     @MockitoBean
-    private  KafkaProducerService kafkaProducerService;
+    private KafkaProducerService kafkaProducerService;
 
     @MockitoBean
-    private  JobPostClient jobPostClient;
+    private JobPostClient jobPostClient;
 
     @MockitoBean
-    private  JobApplicationRepository jobApplicationRepository;
+    private JobApplicationRepository jobApplicationRepository;
 
-//    @Test
-//    void applyToJobAsync() throws Exception{
+    @MockitoBean
+    private  FileStorageService fileStorageService;
+
+    @MockitoBean
+    @Qualifier("virtualThreadExecutor")
+    private Executor executor;
 //
-//        JobApplicationDto applicationRequest = new JobApplicationDto("lokesh's_resume");
-//        when(jobApplicationService.getSeekerIdByEmail("lokesh@gmail.com")).thenReturn(1L);
-//        when(jobApplicationService.applyToJobAsync(any() , any() , any()))
+//    @BeforeEach
+//    void setup() {
+//        doAnswer(invocation -> {
+//            Runnable r = invocation.getArgument(0);
+//            r.run();   // manually execute
+//            return null;
+//        }).when(executor).execute(any(Runnable.class));
+//    }
+//
+//    @Test
+//    void applyToJobAsync_shouldAcceptApplication() throws Exception {
+//
+//        MockMultipartFile resume =
+//                new MockMultipartFile(
+//                        "resume",
+//                        "resume.pdf",
+//                        "application/pdf",
+//                        "Dummy PDF content".getBytes()
+//                );
+//
+//        // mocks
+//        when(jobApplicationService.getSeekerIdByEmail("lokesh@gmail.com"))
+//                .thenReturn(1L);
+//
+//        doNothing().when(jobApplicationService).validateJobExists(1L);
+//        doNothing().when(jobApplicationService).validateApplication(1L, 1L);
+//
+//        when(fileStorageService.saveFile(any(MultipartFile.class)))
+//                .thenReturn("/resumes/lokesh.pdf");
+//
+//        when(jobApplicationService.applyToJobAsync(any(), any(), any()))
 //                .thenReturn(CompletableFuture.completedFuture(null));
 //
-//        mockMvc.perform(post("/job-applications/apply-to/{jobId}", 1L)
-//                        .header("X-User-Email", "lokesh@gmail.com")
-//                        .header("X-User-Role", "SEEKER")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(applicationRequest)))
+//        // perform
+//        mockMvc.perform(
+//                        MockMvcRequestBuilders
+//                                .multipart("/job-applications/apple-to-job/{jobId}", 1L)
+//                                .file(resume)
+//                                .header("X-User-Email", "lokesh@gmail.com")
+//                                .header("X-User-Role", "SEEKER")
+//                )
 //                .andExpect(status().isAccepted())
 //                .andExpect(content().string("Application Submitted Successfully"));
 //
-//
+//        // verify behavior
+//        verify(fileStorageService).saveFile(any(MultipartFile.class));
+//        verify(jobApplicationService).applyToJobAsync(1L, "/resumes/lokesh.pdf", 1L);
 //    }
+
 //
 //    @Test
 //    void apply_Forbidden_WhenUserIsNotSeeker() throws Exception {

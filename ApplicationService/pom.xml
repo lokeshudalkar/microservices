@@ -138,6 +138,12 @@
             <scope>test</scope>
         </dependency>
 
+        <!--LogStash-->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

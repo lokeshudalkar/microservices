@@ -5,6 +5,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.jobportal.ApplicationService.Entity.JobApplication;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -23,4 +25,14 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication ,
      * @return
      */
     List<JobApplication> findBySeekerId(Long seekerId);
+
+
+    @Modifying
+    @Query("""
+        update JobApplication j
+        set j.resumeUrl = :resumeUrl
+        where j.id = :applicationId
+    """)
+    void updateResume(@Param("applicationId") Long applicationId,
+                      @Param("resumeUrl") String resumeUrl);
 }
