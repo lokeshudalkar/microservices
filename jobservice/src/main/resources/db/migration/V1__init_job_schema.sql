@@ -20,5 +20,5 @@ CREATE TABLE IF NOT EXISTS processed_events (
     event_id BIGINT NOT NULL,
     job_id BIGINT NOT NULL,
     processed_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id)
+    PRIMARY KEY (event_id)
 );

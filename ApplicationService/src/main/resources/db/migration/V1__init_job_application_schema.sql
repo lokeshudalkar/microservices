@@ -22,4 +22,4 @@ CREATE INDEX idx_seeker_id ON job_applications (seeker_id);
 
 CREATE INDEX idx_jobpost_id ON job_applications (job_post_id);
 
-CREATE INDEX idx_jobpost_id ON job_applications (job_post_id , seeker_id);
+CREATE INDEX idx_jobpost_seeker_id ON job_applications (job_post_id , seeker_id);
