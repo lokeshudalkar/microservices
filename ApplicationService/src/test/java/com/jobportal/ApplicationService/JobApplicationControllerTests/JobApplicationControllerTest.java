@@ -61,7 +61,7 @@ public class JobApplicationControllerTest {
     private JobApplicationRepository jobApplicationRepository;
 
     @MockitoBean
-    private  FileStorageService fileStorageService;
+    private FileStorageService fileStorageService;
 
     @MockitoBean
     @Qualifier("virtualThreadExecutor")

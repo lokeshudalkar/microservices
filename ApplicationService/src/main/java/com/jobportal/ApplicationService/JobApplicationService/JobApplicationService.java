@@ -3,6 +3,8 @@ package com.jobportal.ApplicationService.JobApplicationService;
 
 import com.jobportal.ApplicationService.Entity.Events;
 import com.jobportal.ApplicationService.Entity.JobApplication;
+import com.jobportal.ApplicationService.Exception.AlreadyAppliedException;
+import com.jobportal.ApplicationService.Exception.FileUploadException;
 import com.jobportal.ApplicationService.FeignClient.JobPostClient;
 import com.jobportal.ApplicationService.FeignClient.UserClient;
 import com.jobportal.ApplicationService.JobApplicationRepository.JobApplicationRepository;
@@ -32,7 +34,6 @@ public class JobApplicationService {
     private final JobApplicationRepository jobApplicationRepository;
     private final OutboxEventRepository outboxEventRepository;
     private final FileStorageService fileStorageService;
-
 
 
     /**
@@ -77,8 +78,9 @@ public class JobApplicationService {
 
     /**
      * Apply to job async completable future.
-     * @param resume   the resume
-     * @param jobId    the job id
+     *
+     * @param resume the resume
+     * @param jobId  the job id
      */
 
     @Transactional
@@ -86,8 +88,8 @@ public class JobApplicationService {
 
         validateJobExists(jobId);
         Long seekerId = getSeekerIdByEmail(email);
-        if(jobApplicationRepository.existsBySeekerIdAndJobPostId(seekerId, jobId)) {
-            throw  new RuntimeException("You already applied to this job");
+        if (jobApplicationRepository.existsBySeekerIdAndJobPostId(seekerId, jobId)) {
+            throw new AlreadyAppliedException("You already applied to this job");
         }
         JobApplication jobApplication = JobApplication.builder()
 
@@ -108,7 +110,7 @@ public class JobApplicationService {
             String path = fileStorageService.saveFile(resume);
             jobApplicationRepository.updateResume(applicationId, path);
         } catch (Exception e) {
-            throw new RuntimeException("FILE_UPLOAD_FAILED");
+            throw new FileUploadException("FILE_UPLOAD_FAILED");
         }
     }
 
@@ -123,7 +125,6 @@ public class JobApplicationService {
                 .build();
         outboxEventRepository.save(events);
     }
-
 
 
     /**

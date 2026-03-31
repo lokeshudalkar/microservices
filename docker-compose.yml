@@ -14,6 +14,10 @@ services:
     networks:
       - jobportal-net
 
+  # --------------------------
+  # ELK Stack
+  # --------------------------
+
   logstash:
     image: logstash:8.11.1
     volumes:

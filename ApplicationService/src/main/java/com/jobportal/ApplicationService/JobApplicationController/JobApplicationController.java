@@ -3,7 +3,6 @@ package com.jobportal.ApplicationService.JobApplicationController;
 import com.jobportal.ApplicationService.Entity.JobApplication;
 import com.jobportal.ApplicationService.JobApplicationRepository.JobApplicationRepository;
 import com.jobportal.ApplicationService.JobApplicationService.JobApplicationService;
-import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,7 +31,6 @@ import java.util.concurrent.CompletionException;
 public class JobApplicationController {
 
 
-
     private final JobApplicationService jobApplicationService;
 
 
@@ -58,44 +56,10 @@ public class JobApplicationController {
                     .body("ONLY SEEKERS CAN APPLY TO JOB POSTINGS");
         }
 
-        try {
-
-            jobApplicationService.applyToJob(resume, jobId, email);
-            return ResponseEntity.accepted().body("Application Submitted Successfully");
-
-        } catch (RuntimeException ex) {
-            Throwable root = ex.getCause();
-
-            if(root.getMessage().equals("You already applied to this job")){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("You already applied to this job");
-            }
-            if (root instanceof FeignException.NotFound) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Job not found");
-            }
-
-            if ("JOB_SERVICE_DOWN".equals(root.getMessage())) {
-                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                        .body("Job service unavailable");
-            }
-
-            if ("USER_SERVICE_UNAVAILABLE".equals(root.getMessage())) {
-                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-                        .body("User service unavailable");
-            }
-
-            if ("FILE_UPLOAD_FAILED".equals(root.getMessage())) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body("Resume upload failed");
-            }
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Unexpected error: " + root.getMessage());
-        }
+        jobApplicationService.applyToJob(resume, jobId, email);
+        return ResponseEntity.accepted().body("Application Submitted Successfully");
 
     }
-
 
 
 //    @PostMapping(value = "/apply-to/{jobId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

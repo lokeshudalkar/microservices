@@ -40,7 +40,7 @@ public class JobPost {
 
     private LocalDateTime time;
 
-    private Long recruiterId; // it will come from user-service
+    private Long recruiterId; // It will come from user-service
 
     private int applicationCount = 0;
 

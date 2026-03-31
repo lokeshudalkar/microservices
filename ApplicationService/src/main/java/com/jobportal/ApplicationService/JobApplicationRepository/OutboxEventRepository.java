@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface OutboxEventRepository extends JpaRepository<Events , Long> {
+public interface OutboxEventRepository extends JpaRepository<Events, Long> {
     List<Events> findTop100ByStatus(EventStatus status);
 }

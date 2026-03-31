@@ -36,5 +36,4 @@ public class JobApplication {
     private Long seekerId; // it will come from user-service
 
 
-
 }

@@ -10,9 +10,11 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface JobApplicationRepository extends JpaRepository<JobApplication , Long> {
+public interface JobApplicationRepository extends JpaRepository<JobApplication, Long> {
     List<JobApplication> findByApplicationId(Long ApplicationId);
+
     boolean existsBySeekerIdAndJobPostId(Long seekerId, Long jobPostId);
+
     List<JobApplication> findByJobPostId(Long jobId);
 
     @Modifying
@@ -21,6 +23,7 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication ,
 
     /**
      * this for finding the all applications of seeker when he/she is logged in.
+     *
      * @param seekerId
      * @return
      */
@@ -29,10 +32,10 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication ,
 
     @Modifying
     @Query("""
-        update JobApplication j
-        set j.resumeUrl = :resumeUrl
-        where j.id = :applicationId
-    """)
+                update JobApplication j
+                set j.resumeUrl = :resumeUrl
+                where j.id = :applicationId
+            """)
     void updateResume(@Param("applicationId") Long applicationId,
                       @Param("resumeUrl") String resumeUrl);
 }

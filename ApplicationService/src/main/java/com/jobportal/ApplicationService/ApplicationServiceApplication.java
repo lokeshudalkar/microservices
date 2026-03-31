@@ -14,8 +14,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class ApplicationServiceApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ApplicationServiceApplication.class, args);
-		System.out.println("Application-service has started");
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ApplicationServiceApplication.class, args);
+        System.out.println("Application-service has started");
+    }
 }

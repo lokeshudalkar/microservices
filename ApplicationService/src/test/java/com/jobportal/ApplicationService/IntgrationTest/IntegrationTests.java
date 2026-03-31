@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @Testcontainers
-public class IntegrationTests extends AbstractIntegrationTest{
+public class IntegrationTests extends AbstractIntegrationTest {
 
     @Autowired
     private JobApplicationService jobApplicationService;
@@ -32,7 +32,6 @@ public class IntegrationTests extends AbstractIntegrationTest{
 
     @MockitoBean
     private OutboxEventRepository outboxEventRepository;
-
 
 
 //    @Test
